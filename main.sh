@@ -12,5 +12,5 @@ while true; do
 		git pull
 		./gen_blog.sh "${OUTPUT_DIR}"
 	fi
-    sleep 60
+	sleep 60
 done
