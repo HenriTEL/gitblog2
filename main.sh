@@ -1,7 +1,9 @@
 #!/bin/sh
 set -e
 
-git clone "${REPO_URL}" blog/
+if [ ! -d blog/ ]; then
+	git clone "${REPO_URL}" blog/
+fi
 cd blog/
 ./gen_blog.sh "${OUTPUT_DIR}"
 
