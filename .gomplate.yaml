@@ -1,0 +1,4 @@
+plugins:
+  cmark:
+    cmd: /usr/bin/cmark
+    pipe: true
