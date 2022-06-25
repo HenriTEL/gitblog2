@@ -6,7 +6,7 @@ cd blog/
 ./gen_blog.sh "${OUTPUT_DIR}"
 
 while true; do
-	if ! git fetch --dry-run; then
+	if git fetch --dry-run 2>&1 | grep origin; then
 		git pull
 		./gen_blog.sh "${OUTPUT_DIR}"
 	fi
