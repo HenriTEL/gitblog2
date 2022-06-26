@@ -1,14 +1,32 @@
+{{ $title := .article_md | grep "^# " | strings.ReplaceAll "#" "" }}
+{{ $description := .article_md | grep "TL;DR" | strings.ReplaceAll "**TL;DR**" "" }}
 <!DOCTYPE html>
 <html>
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ $title }}</title>
+    <meta name="description" content="{{ $description }}">
+    <meta name="author" content="HenriTEL">
+  
+    <meta property="og:type" content="article">
+    <meta property="og:section" content="Technology">
+    <meta property="og:title" content="{{ $title }}">
+    <meta property="og:description" content="{{ $description }}">
+    <!-- TODO article:published_time
+              article:modified_time -->
+
+
+    <link rel="icon" href="media/favicon.svg">
     <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" media="screen" />
     <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-dark.css"
         media="screen and (prefers-color-scheme: dark)" />
 </head>
 
 <body>
-{{ datasource "article_md" | cmark }}
+{{ .article_md | cmark }}
 </body>
 
 </html>
