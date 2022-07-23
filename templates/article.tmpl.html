@@ -1,5 +1,3 @@
-{{ $title := .article_md | grep "^# " | strings.ReplaceAll "#" "" }}
-{{ $description := .article_md | grep "TL;DR" | strings.ReplaceAll "**TL;DR**" "" }}
 <!DOCTYPE html>
 <html>
 
@@ -7,16 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {{ $title := .article_content | grep "^# " | strings.ReplaceAll "# " "" | strings.Trim "\n" -}}
     <title>{{ $title }}</title>
+    {{ $description := .article_content | grep "TL;DR" | strings.ReplaceAll "**TL;DR** " "" | strings.Trim " \n" -}}
     <meta name="description" content="{{ $description }}">
-    <meta name="author" content="HenriTEL">
+    {{ $changelogs := .changelog | csvByColumn "|" "dates|datetimes|authors|messages" -}}
+    <meta name="author" content="{{ index $changelogs.authors 0 }}">
   
     <meta property="og:type" content="article">
     <meta property="og:section" content="Technology">
     <meta property="og:title" content="{{ $title }}">
     <meta property="og:description" content="{{ $description }}">
-    <!-- TODO article:published_time
-              article:modified_time -->
+    {{ $datetimes := (.changelog | csvByColumn "|" "date|datetime|author|message").datetime -}}
+    <meta property="og:published_time" content="{{ index ($changelogs.datetimes | reverse) 0 }}">
+    <meta property="og:modified_time" content="{{ index $changelogs.datetimes 0 }}">
 
 
     <link rel="icon" href="media/favicon.svg">
@@ -26,7 +28,7 @@
 </head>
 
 <body>
-{{ .article_md | cmark }}
+{{ .article_content | cmark }}
 </body>
 
 </html>
