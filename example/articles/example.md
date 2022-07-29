@@ -1,6 +1,6 @@
 # Hello World
 
-**TL;DR** This article was made using git-blog.  
+> This article was made using git-blog. LolZ  
 
 ```python
 def foo():
