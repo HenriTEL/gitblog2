@@ -1,6 +1,6 @@
-# Git-blog
+# ![Git-blog Logo](example/media/favicon.svg "title") Git-blog
 
-git + Markdown = blog
+Git + Markdown = Your blog
 
 ## TODO
 
