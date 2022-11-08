@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% include "head_common.html.j2" %}
+</head>
+<body>
+{% include "header.html.j2" %}
+
+{%- for article in articles %}
+    <a link=url>{{ art_title }}</a> <span>({{ pub_date }})</span>
+{%- endfor %}
+
+{% include "footer.html.j2" %}
+</body>
+{% include "footer.html.j2" %}
+</html>

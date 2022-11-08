@@ -1,12 +1,12 @@
 # ![Git-blog Logo](example/media/favicon.svg "title") Git-blog
 
 Git + Markdown = Your blog
-
+Look at cool HTML elements: https://tapajyoti-bose.medium.com/7-cool-html-elements-nobody-uses-436598d85668
 ## TODO
 
-* Live update locally
 * Generate index.html
-* Rebuild when repo updates by default
+* Add bio and picture from github
+* Live update locally
 * Nginx config `try_files $uri $uri.html $uri/index.html =404;`
 * Draft support (gen blacklist + set publish_date to first `mv`)
 
