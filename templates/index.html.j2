@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-{% include "head_common.html.j2" %}
+    {% include "head_common.html.j2" %}
 </head>
+
 <body>
-{% include "header.html.j2" %}
+    {% include "navbar.html.j2" %}
 
-{%- for article in articles %}
-    <a link=url>{{ art_title }}</a> <span>({{ pub_date }})</span>
-{%- endfor %}
-
-{% include "footer.html.j2" %}
+    {%- for article in articles %}
+    <a link="{{ article.relative_path }}">{{ article.title }}</a> <span>({{ article.commits[-1].human_time }})</span>
+    {%- endfor %}
+    {% with commits=articles[0].commits %}
+    {% include "footer.html.j2" %}
+    {% endwith %}
 </body>
-{% include "footer.html.j2" %}
+
 </html>
