@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from collections import defaultdict
 from datetime import datetime
 import os
@@ -10,7 +11,11 @@ import re
 import jinja2
 from markdown import markdown
 
-from utils import listenv
+
+def listenv(envname: str, default: List[str]) -> List[str]:
+    if envname in os.environ:
+        return os.getenv(envname).split(",")
+    return default
 
 
 TEMPLATES_DIR_DEFAULT = "templates"
@@ -39,7 +44,7 @@ def main():
     j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_fulldir))
 
     sections = list(gen_sections(repo))
-    section_to_paths = defaultdict(list)
+    section_to_paths: Dict[str, list] = defaultdict(list)
     path_to_article = defaultdict(dict)
     for path, commit in gen_commits(repo):
         if "commits" in path_to_article[path]:
@@ -53,14 +58,13 @@ def main():
 
     last_commit = repo[repo.head.target]
     for path, content in gen_articles_content(last_commit.tree):
-        print(path)
         title, description, md_content = parse_md(content)
         path_to_article[path]["title"] = title
         path_to_article[path]["description"] = description
         path_to_article[path]["relative_path"] = path[:-3]
         render_article(
             metadata=path_to_article[path],
-            md_content=content,
+            md_content=md_content,
             target_path=f"{OUTPUT_DIR}/{path.replace('.md', '.html')}",
             sections=sections,
             j2_env=j2_env,
@@ -73,6 +77,14 @@ def main():
             sections=sections,
             j2_env=j2_env,
         )
+    render_index(
+        articles_paths=[p for paths in section_to_paths.values() for p in paths],
+        path_to_article=path_to_article,
+        target_path=f"{OUTPUT_DIR}/index.html",
+        sections=sections,
+        j2_env=j2_env,
+        title="Home",
+    )
 
 
 def setup_repo() -> pygit2.Repository:
@@ -105,7 +117,6 @@ def render_article(
         commits=metadata["commits"],
         sections=sections,
     )
-    print(full_page)
     with open(target_path, "w+") as fd:
         fd.write(full_page)
     logging.info(f"{target_path} has been written.")
@@ -117,16 +128,18 @@ def render_index(
     target_path: str,
     sections: List[str],
     j2_env: jinja2.Environment,
+    title: str = None,
 ):
     template = j2_env.get_template("index.html.j2")
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     articles = [path_to_article[p] for p in articles_paths]
+    if title is None:
+        title = articles_paths[0].split("/")[0]
     full_page = template.render(
-        title=articles_paths[0].split("/")[0],
+        title=title,
         articles=articles,
         sections=sections,
     )
-    print(full_page)
     with open(target_path, "w+") as fd:
         fd.write(full_page)
     logging.info(f"{target_path} has been written.")
@@ -196,7 +209,6 @@ def parse_md(md_content: str) -> Tuple[str, str, str]:
     desc_pattern = r"^\> (.+)\n"
     title = re.search(title_pattern, md_content, re.MULTILINE).group(1).rstrip()
     md_content = re.sub(title_pattern, "", md_content, 1, re.MULTILINE)
-    print(md_content)
     desc = re.search(desc_pattern, md_content, re.MULTILINE).group(1).rstrip()
     md_content = re.sub(desc_pattern, "", md_content, 1, re.MULTILINE)
 

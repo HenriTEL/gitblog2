@@ -1,5 +1,5 @@
-<nav><ol>
-{%- for section in sections %}
-        <li><a href="/{{ section|lower }}">{{ section|title }}</a></li>
-{%- endfor %}
-</ol></nav>
+<nav>
+        {%- for section in sections %}
+        <a href="/{{ section|lower }}">{{ section|title }}</a>
+        {%- endfor %}
+</nav>

@@ -38,7 +38,9 @@
             </dl>
         </footer>
     </article>
+    {% with author_name=commits[-1].author.name %}
     {% include "footer.html.j2" %}
+    {% endwith %}
 </body>
 
 </html>
