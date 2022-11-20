@@ -109,8 +109,11 @@ html {
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-  line-height: 1.4;
+  font-family: "Crimson Text", Georgia, Times, "Times New Roman", serif;
+  font-feature-settings: 'kern', 'onum', 'liga';
+  font-size: 1.28rem;
+  line-height: 2.25rem;
+  letter-spacing: .05rem;
   max-width: 800px;
   margin: 20px auto;
   padding: 0 10px;
@@ -1686,6 +1689,8 @@ footer {
 
 body>footer {
   margin-top: 40px;
+  display: flex;
+  column-gap: 0.5rem;
 }
 
 @media print {

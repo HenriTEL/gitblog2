@@ -17,26 +17,28 @@
     <article>
         <header>
             <h1>{{ title }}</h1>
-            <blockquote>
+            <small>
                 {{- commits[-1].human_time }}
                 {%- if commits|length > 1 -%}
                 , last edited on {{ commits[0].human_time }}
                 {%- endif -%}
-            </blockquote>
+            </small><br />
             {% if description -%}
-            <p>{{ description }}</p>
+            <span>{{ description }}</span>
             {%- endif %}
         </header>
         {{ main_content }}
+        {%- if commits|length > 1 -%}
         <footer>
             <p>Last changes:</p>
-            <dl>
-                {%- for commit in commits[:4] %}
-                <dt>{{ commit.human_time }}</dt>
-                <dd>{{ commit.message|trim }}</dd>
+            <tr>
+                {%- for commit in commits[1:5] %}
+                <td>{{ commit.human_time }}</td>
+                <td>{{ commit.message|trim }}</td>
                 {%- endfor %}
-            </dl>
+            </tr>
         </footer>
+        {%- endif %}
     </article>
     {% with author_name=commits[-1].author.name %}
     {% include "footer.html.j2" %}
