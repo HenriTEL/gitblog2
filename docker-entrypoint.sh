@@ -3,5 +3,5 @@ set -e
 
 ./main.py
 for cmd in "$@"; do
-	"./provider/${cmd}.sh"
+	"./providers/${cmd}.sh"
 done

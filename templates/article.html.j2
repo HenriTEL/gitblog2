@@ -33,7 +33,7 @@
             <p>Last changes:</p>
             <tr>
                 {%- for commit in commits[1:5] %}
-                <td>{{ commit.human_time }}</td>
+                <td><small>{{ commit.human_time }}</small></td>
                 <td>{{ commit.message|trim }}</td>
                 {%- endfor %}
             </tr>

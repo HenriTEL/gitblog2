@@ -6,7 +6,9 @@ RUN pip3 install -r requirements.txt
 
 COPY main.py .
 COPY media media
+COPY css css
 COPY templates templates
+COPY providers providers
 
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]

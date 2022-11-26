@@ -5,7 +5,7 @@ import os
 import pathlib
 import shutil
 from tempfile import mkdtemp
-from typing import Any, Dict, Generator, List, Tuple
+from typing import Any, Dict, Generator, List, Set, Tuple
 import pygit2
 import logging
 import re
@@ -25,7 +25,7 @@ REPO_URL = os.getenv("REPO_URL", "https://codeberg.org/HenriTEL/git-blog.git")
 REPO_SUBDIR = os.getenv("REPO_SUBDIR", "").strip("/")
 REPO_TEMPLATES_DIR = os.getenv("REPO_TEMPLATES_DIR", TEMPLATES_DIR_DEFAULT).strip("/")
 REPO_DIRS_BLACKLIST = listenv("REPO_DIRS_BLACKLIST", ["draft", "media", "templates"])
-REPO_FILES_BLACKLIST = listenv("REPO_FILES_BLACKLIST", ["README.md"])
+REPO_FILES_BLACKLIST = listenv("REPO_FILES_BLACKLIST", ["README.md", "LICENSE.md"])
 CLONE_PATH = os.getenv("CLONE_PATH", "").rstrip("/")
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./www").rstrip("/")
 MD_LIB_EXTENSIONS = listenv("MD_LIB_EXTENSIONS", ["extra", "toc"])
@@ -43,7 +43,7 @@ def main():
     j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_fulldir))
 
     sections = list(gen_sections(repo))
-    section_to_paths: Dict[str, list] = defaultdict(list)
+    section_to_paths: Dict[str, list] = defaultdict(set)
     path_to_article = defaultdict(dict)
     for path, commit in gen_commits(repo):
         if "commits" in path_to_article[path]:
@@ -53,7 +53,7 @@ def main():
         if "/" in path:
             section = path.split("/")[0]
             if section in sections:
-                section_to_paths[section].append(path)
+                section_to_paths[section].add(path)
 
     # Render all html articles
     last_commit = repo[repo.head.target]
@@ -93,17 +93,17 @@ def main():
 
 def setup_repo() -> pygit2.Repository:
     global CLONE_PATH, REPO_URL
-    cwd = pathlib.Path().resolve()
+    cwd = str(pathlib.Path().resolve()).rstrip("/")
 
     # Clone the repository if necessary
     if CLONE_PATH and os.path.exists(f"{CLONE_PATH}/.git/"):
         repo = pygit2.Repository(CLONE_PATH)
     else:
         if not CLONE_PATH:
-            CLONE_PATH = mkdtemp()
+            CLONE_PATH = mkdtemp().rstrip("/")
         os.makedirs(CLONE_PATH, exist_ok=True)
         repo = pygit2.clone_repository(REPO_URL, CLONE_PATH)
-        logging.info(f"Cloned into {CLONE_PATH}")
+        logging.info(f"Cloned blog sources into {CLONE_PATH}")
 
     # Add missing template files
     templates_fulldir_src = f"{cwd}/templates"
@@ -113,22 +113,31 @@ def setup_repo() -> pygit2.Repository:
         dst = f"{templates_fulldir_dst}/{template_file}"
         if not os.path.exists(dst):
             os.symlink(f"{templates_fulldir_src}/{template_file}", dst)
+            logging.info(f"Added {dst}")
 
     # Add missing media
     media_fulldir_src = f"{cwd}/media"
-    media_fulldir_dst = f"{CLONE_PATH}/{REPO_SUBDIR}/media"
+    media_fulldir_dst = (
+        f"{CLONE_PATH}/{REPO_SUBDIR}/media" if REPO_SUBDIR else f"{CLONE_PATH}/media"
+    )
     os.makedirs(media_fulldir_dst, exist_ok=True)
     for media_file in os.listdir(media_fulldir_src):
         dst = f"{media_fulldir_dst}/{media_file}"
         if not os.path.exists(dst):
             shutil.copyfile(f"{media_fulldir_src}/{media_file}", dst)
+            logging.info(f"Added {dst}")
 
     # Add missing css
-    dst = f"{CLONE_PATH}/{REPO_SUBDIR}/style.css"
+    dst = (
+        f"{CLONE_PATH}/{REPO_SUBDIR}/style.css"
+        if REPO_SUBDIR
+        else f"{CLONE_PATH}/style.css"
+    )
     if not os.path.exists(dst):
         for css_file in ["layout.css", "style.css"]:
             with open(dst, "a+") as fo, open(f"{cwd}/css/{css_file}", "r") as fi:
                 fo.write(fi.read())
+        logging.info(f"Added {dst}")
 
     return repo
 
@@ -152,11 +161,11 @@ def render_article(
     )
     with open(target_path, "w+") as fd:
         fd.write(full_page)
-    logging.info(f"{target_path} has been written.")
+    logging.info(f"Rendered {target_path}")
 
 
 def render_index(
-    articles_paths: List[str],
+    articles_paths: Set[str],
     path_to_article: Dict[str, Dict[str, Any]],
     target_path: str,
     sections: List[str],
@@ -167,7 +176,7 @@ def render_index(
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     articles = [path_to_article[p] for p in articles_paths]
     if title is None:
-        title = articles_paths[0].split("/")[0]
+        title = next(iter(articles_paths)).split("/")[0]
     full_page = template.render(
         title=title,
         articles=articles,
@@ -175,7 +184,7 @@ def render_index(
     )
     with open(target_path, "w+") as fd:
         fd.write(full_page)
-    logging.info(f"{target_path} has been written.")
+    logging.info(f"Rendered {target_path}")
 
 
 def gen_commits(repo: pygit2.Repository) -> Tuple[str, Dict[str, Any]]:
@@ -194,7 +203,9 @@ def gen_commits(repo: pygit2.Repository) -> Tuple[str, Dict[str, Any]]:
             diff = prev.tree.diff_to_tree(commit.tree)
             for patch in diff:
                 path = patch.delta.new_file.path
-                if path.endswith(".md") and path.startswith(f"{REPO_SUBDIR}/"):
+                if path.endswith(".md") and (
+                    not REPO_SUBDIR or path.startswith(f"{REPO_SUBDIR}/")
+                ):
                     path = path.removeprefix(f"{REPO_SUBDIR}/")
                     yield path, clean_ci(commit)
 
@@ -209,7 +220,7 @@ def gen_articles_content(
 
         elif (
             obj.name.endswith(".md")
-            and path.startswith(f"{REPO_SUBDIR}/")
+            and (not REPO_SUBDIR or path.startswith(f"{REPO_SUBDIR}/"))
             and obj.name not in REPO_FILES_BLACKLIST
         ):
             path = path.removeprefix(f"{REPO_SUBDIR}/")
@@ -219,13 +230,14 @@ def gen_articles_content(
 def gen_sections(repo: pygit2.Repository):
     tree = repo[repo.head.target].tree
     # Move to the REPO_SUBDIR location
-    for to_match in REPO_SUBDIR.split("/"):
-        for obj in tree:
-            if obj.type == pygit2.GIT_OBJ_TREE and obj.name == to_match:
-                tree = obj
-                break
-        if obj.name != to_match:
-            return
+    if REPO_SUBDIR:
+        for to_match in REPO_SUBDIR.split("/"):
+            for obj in tree:
+                if obj.type == pygit2.GIT_OBJ_TREE and obj.name == to_match:
+                    tree = obj
+                    break
+            if obj.name != to_match:
+                return
 
     # Enumerate all valid toplevel dirs
     for obj in tree:
@@ -262,7 +274,7 @@ def get_sections_to_md(
 def copy_static_assets():
     media_src = f"{CLONE_PATH}/{REPO_SUBDIR}/media"
     media_dst = f"{OUTPUT_DIR}/media"
-    shutil.copytree(media_src, media_dst)
+    shutil.copytree(media_src, media_dst, dirs_exist_ok=True)
 
     css_src = f"{CLONE_PATH}/{REPO_SUBDIR}/style.css"
     css_dst = f"{OUTPUT_DIR}/style.css"
