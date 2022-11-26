@@ -2,6 +2,8 @@
 from collections import defaultdict
 from datetime import datetime
 import os
+import pathlib
+import shutil
 from tempfile import mkdtemp
 from typing import Any, Dict, Generator, List, Tuple
 import pygit2
@@ -26,7 +28,7 @@ REPO_DIRS_BLACKLIST = listenv("REPO_DIRS_BLACKLIST", ["draft", "media", "templat
 REPO_FILES_BLACKLIST = listenv("REPO_FILES_BLACKLIST", ["README.md"])
 CLONE_PATH = os.getenv("CLONE_PATH", "").rstrip("/")
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./www").rstrip("/")
-MD_LIB_EXTENSIONS = listenv("MD_LIB_EXTENSIONS", ["extra"])
+MD_LIB_EXTENSIONS = listenv("MD_LIB_EXTENSIONS", ["extra", "toc"])
 
 """
 List of files per section
@@ -37,10 +39,7 @@ regex sub
 
 def main():
     repo = setup_repo()
-    # TODO link missing template files in REPO
-    # templates_fulldir = f"{CLONE_PATH}/{REPO_TEMPLATES_DIR}"
-    # if not os.path.exists(templates_fulldir):
-    templates_fulldir = TEMPLATES_DIR_DEFAULT
+    templates_fulldir = f"{CLONE_PATH}/{REPO_TEMPLATES_DIR}"
     j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_fulldir))
 
     sections = list(gen_sections(repo))
@@ -56,6 +55,7 @@ def main():
             if section in sections:
                 section_to_paths[section].append(path)
 
+    # Render all html articles
     last_commit = repo[repo.head.target]
     for path, content in gen_articles_content(last_commit.tree):
         title, description, md_content = parse_md(content)
@@ -69,6 +69,7 @@ def main():
             sections=sections,
             j2_env=j2_env,
         )
+    # Render sections index.html
     for section in sections:
         render_index(
             articles_paths=section_to_paths[section],
@@ -77,6 +78,8 @@ def main():
             sections=sections,
             j2_env=j2_env,
         )
+
+    # Render root index.html
     render_index(
         articles_paths=[p for paths in section_to_paths.values() for p in paths],
         path_to_article=path_to_article,
@@ -85,10 +88,14 @@ def main():
         j2_env=j2_env,
         title="Home",
     )
+    copy_static_assets()
 
 
 def setup_repo() -> pygit2.Repository:
     global CLONE_PATH, REPO_URL
+    cwd = pathlib.Path().resolve()
+
+    # Clone the repository if necessary
     if CLONE_PATH and os.path.exists(f"{CLONE_PATH}/.git/"):
         repo = pygit2.Repository(CLONE_PATH)
     else:
@@ -97,6 +104,32 @@ def setup_repo() -> pygit2.Repository:
         os.makedirs(CLONE_PATH, exist_ok=True)
         repo = pygit2.clone_repository(REPO_URL, CLONE_PATH)
         logging.info(f"Cloned into {CLONE_PATH}")
+
+    # Add missing template files
+    templates_fulldir_src = f"{cwd}/templates"
+    templates_fulldir_dst = f"{CLONE_PATH}/{REPO_TEMPLATES_DIR}"
+    os.makedirs(templates_fulldir_dst, exist_ok=True)
+    for template_file in os.listdir(templates_fulldir_src):
+        dst = f"{templates_fulldir_dst}/{template_file}"
+        if not os.path.exists(dst):
+            os.symlink(f"{templates_fulldir_src}/{template_file}", dst)
+
+    # Add missing media
+    media_fulldir_src = f"{cwd}/media"
+    media_fulldir_dst = f"{CLONE_PATH}/{REPO_SUBDIR}/media"
+    os.makedirs(media_fulldir_dst, exist_ok=True)
+    for media_file in os.listdir(media_fulldir_src):
+        dst = f"{media_fulldir_dst}/{media_file}"
+        if not os.path.exists(dst):
+            shutil.copyfile(f"{media_fulldir_src}/{media_file}", dst)
+
+    # Add missing css
+    dst = f"{CLONE_PATH}/{REPO_SUBDIR}/style.css"
+    if not os.path.exists(dst):
+        for css_file in ["layout.css", "style.css"]:
+            with open(dst, "a+") as fo, open(f"{cwd}/css/{css_file}", "r") as fi:
+                fo.write(fi.read())
+
     return repo
 
 
@@ -224,6 +257,16 @@ def get_sections_to_md(
             section = path.split("/")[0]
             sections_to_md[section].append(path)
     return sections_to_md
+
+
+def copy_static_assets():
+    media_src = f"{CLONE_PATH}/{REPO_SUBDIR}/media"
+    media_dst = f"{OUTPUT_DIR}/media"
+    shutil.copytree(media_src, media_dst)
+
+    css_src = f"{CLONE_PATH}/{REPO_SUBDIR}/style.css"
+    css_dst = f"{OUTPUT_DIR}/style.css"
+    shutil.copy(css_src, css_dst)
 
 
 if __name__ == "__main__":

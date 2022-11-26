@@ -1,0 +1,5 @@
+<svg  width="24" height="24" stroke-width="2" viewBox="0 0 24 24" fill="tomato" xmlns="http://www.w3.org/2000/svg">
+  <path d="m 2,13.4 h 4.8 c 0,0 1,4 5.2,4 4,0 5.2,-4 5.2,-4 H 22 V 24 H 2 Z" />
+  <path d="m 2,0 v 10.6 h 4.8 c 0,0 1,-4 5.2,-3.8 4,0 5.2,3.8 5.2,3.8 H 22 V 5 C 22,5 19,4.6 18,3.5 17,2.4 16,0 16,0" />
+  <circle cx="12" cy="12" r="2.6" />
+</svg>

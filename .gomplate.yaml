@@ -1,7 +1,0 @@
-plugins:
-  cmark:
-    cmd: /usr/bin/cmark
-    pipe: true
-  grep:
-    cmd: /bin/grep
-    pipe: true

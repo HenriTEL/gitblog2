@@ -1,5 +1,4 @@
 .DS_Store
 www/
 __pycache__/
-
-redbean*
+*.env
