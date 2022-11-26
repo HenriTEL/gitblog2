@@ -1,15 +1,14 @@
-# ![Git-blog Logo](example/media/favicon.svg "title") Git-blog
+# ![Git-blog Logo](media/favicon.svg "title") Git-blog
 
 Git + Markdown = Your blog
-Look at cool HTML elements: <https://tapajyoti-bose.medium.com/7-cool-html-elements-nobody-uses-436598d85668>
 
 ## TODO
 
 * Add bio and picture from github
+* Look at cool HTML elements: <https://tapajyoti-bose.medium.com/7-cool-html-elements-nobody-uses-436598d85668>
 * css toolchain like <https://github.com/FullHuman/purgecss/issues/264>
 * Live update locally
-* Nginx config `try_files $uri $uri.html $uri/index.html =404;`
-* Draft support (gen blacklist + set publish_date to first `mv`)
+* Draft support (set publish_date to first `mv`)
 
 ## Internals
 
