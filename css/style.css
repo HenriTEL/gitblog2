@@ -5,6 +5,10 @@
  */
 
 :root {
+	/* Fonts based on https://systemfontstack.com/ */
+	--serif: Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+	--sans-serif: apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+	--mono: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
 	--background-body: #fff;
 	--background: #efefef;
 	--background-alt: #f7f7f7;
@@ -109,7 +113,7 @@ html {
 }
 
 body {
-	font-family: "Crimson Text", Georgia, Times, "Times New Roman", serif;
+	font-family: var(--serif);
 	font-feature-settings: 'kern', 'onum', 'liga';
 	font-size: 1.28rem;
 	line-height: 2.25rem;
@@ -1117,7 +1121,7 @@ var {
 	color: #39a33c;
 	color: var(--variable);
 	font-style: normal;
-	font-family: monospace;
+	font-family: var(--mono);
 }
 
 @media (prefers-color-scheme: dark) {

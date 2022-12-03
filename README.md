@@ -9,6 +9,7 @@ Git + Markdown = Your blog
 * css toolchain like <https://github.com/FullHuman/purgecss/issues/264>
 * Live update locally
 * Draft support (set publish_date to first `mv`)
+* Fix root index.html not served by redbean
 
 ## Internals
 
