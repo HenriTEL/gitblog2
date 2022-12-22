@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "gitblog2"
+version = "0.1.1"
+description = "Git + Markdown = blog"
+authors = ["Henri Hannetel <henri.hannetel@pm.me>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "gitblog2"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Jinja2 = "^3.1.2"
+Markdown = "^3.4.1"
+pygit2 = "^1.11.1"
+typer = "^0.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+gitblog = "gitblog2.cli:main"

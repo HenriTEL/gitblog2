@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include "head_common.html.j2" %}
+</head>
+
+<body>
+    {% include "navbar.html.j2" %}
+
+    {%- for article in articles %}
+    <a href="/{{ article.relative_path }}">{{ article.title }}</a> <small>{{ article.commits[-1].human_time }}</small>
+    {%- endfor %}
+    {% with author_name=articles[0].commits[0].author.name %}
+    {% include "footer.html.j2" %}
+    {% endwith %}
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include "head_common.html.j2" %}
+
+    {% if description -%}
+    <meta name="description" content="{{ description }}">
+    {% endif -%}
+    <meta name="author" content="{{ commits[-1].author.name }}">
+    <meta property="article:published_time" content="{{ commits[-1].iso_time }}">
+    <meta property="article:modified_time" content="{{ commits[0].iso_time }}">
+</head>
+
+<body>
+    {% include "navbar.html.j2" %}
+    <article>
+        <header>
+            <h1>{{ title }}</h1>
+            <small>
+                {{- commits[-1].human_time }}
+                {%- if commits|length > 1 -%}
+                , last edited on {{ commits[0].human_time }}
+                {%- endif -%}
+            </small><br />
+            {% if description -%}
+            <span>{{ description }}</span>
+            {%- endif %}
+        </header>
+        {{ main_content }}
+        {%- if commits|length > 1 -%}
+        <footer>
+            <p>Last changes:</p>
+            <tr>
+                {%- for commit in commits[1:5] %}
+                <td><small>{{ commit.human_time }}</small></td>
+                <td>{{ commit.message|trim }}</td>
+                {%- endfor %}
+            </tr>
+        </footer>
+        {%- endif %}
+    </article>
+    {% with author_name=commits[-1].author.name %}
+    {% include "footer.html.j2" %}
+    {% endwith %}
+</body>
+
+</html>

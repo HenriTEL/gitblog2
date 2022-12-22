@@ -1,4 +1,11 @@
+# General
 .DS_Store
-www/
+.vscode
+
+# Python
 __pycache__/
+dist/
+
+# Project specific
+www/
 *.env
