@@ -6,6 +6,8 @@ Git + Markdown = Blog
 
 High priority:
 * Set output_dir for copy_static_assets
+* Sync template and static assets in a temp dir to keep repo clean
+* if nb_commits > 1: last_commit else "Updated on last_commit < info_tooltip hover='published on first_commit'>"
 * Add bio and picture from github
 * Look at cool HTML elements: <https://tapajyoti-bose.medium.com/7-cool-html-elements-nobody-uses-436598d85668>
 * Draft support (set publish_date to first `mv`)
