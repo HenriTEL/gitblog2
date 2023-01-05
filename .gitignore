@@ -9,3 +9,4 @@ dist/
 # Project specific
 www/
 *.env
+gitblog2/style.css
