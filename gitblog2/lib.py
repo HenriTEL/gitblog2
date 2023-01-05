@@ -36,7 +36,7 @@ class GitBlog:
                 self.workdir.name if clone_dir is None else clone_dir.rstrip("/")
             )
         else:
-            self.clone_dir = source_repo
+            self.clone_dir = source_repo.rstrip("/")
         self.blog_path = (
             self.clone_dir + "/" + self.repo_subdir
             if self.repo_subdir
@@ -79,7 +79,8 @@ class GitBlog:
         Use files from the package if not found"""
         media_dst = output_dir + "/media"
         custom_media = self.blog_path + "/media"
-        sync_dir(custom_media, media_dst)
+        if os.path.exists(custom_media):
+            sync_dir(custom_media, media_dst)
         default_media = self.pkgdir + "/media"
         sync_dir(default_media, media_dst)
 
@@ -90,7 +91,7 @@ class GitBlog:
             shutil.copyfile(custom_css, css_dst)
         else:
             shutil.copyfile(default_css, css_dst)
-        logging.debug(f"Copied static assets.")
+        logging.debug("Copied static assets.")
 
     def write_articles(self, output_dir: str):
         template = self.j2env.get_template("article.html.j2")
@@ -111,6 +112,7 @@ class GitBlog:
             template = self.j2env.get_template("article.html.j2")
         title, description, md_content = self.parse_md(content)
         if path is not None:
+            # TODO fix indexes not beeing rendered when render_article not previously called
             self.articles_metadata[path]["relative_path"] = path[:-3]
             self.articles_metadata[path]["title"] = title
             self.articles_metadata[path]["description"] = description
