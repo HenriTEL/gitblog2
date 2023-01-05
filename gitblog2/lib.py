@@ -30,9 +30,10 @@ class GitBlog:
         self.dirs_blacklist = dirs_blacklist
         self.files_blacklist = files_blacklist
 
+        self.workdir = TemporaryDirectory()
         if _is_uri(self.source_repo):
             self.clone_dir = (
-                TemporaryDirectory() if clone_dir is None else clone_dir.rstrip("/")
+                self.workdir.name if clone_dir is None else clone_dir.rstrip("/")
             )
         else:
             self.clone_dir = source_repo
@@ -73,19 +74,23 @@ class GitBlog:
     def last_commit(self) -> pygit2.Commit:
         return self.repo[self.repo.head.target]
 
-    def copy_static_assets(self):
+    def copy_static_assets(self, output_dir: str):
         """Copy static assets from the repo into the outupt dir.
         Use files from the package if not found"""
-        # TODO Only use package files as a fallback
-        media_src = self.pkgdir + "/media"
-        media_dst = self.blog_path + "/media"
-        sync_dir(media_src, media_dst)
+        media_dst = output_dir + "/media"
+        custom_media = self.blog_path + "/media"
+        sync_dir(custom_media, media_dst)
+        default_media = self.pkgdir + "/media"
+        sync_dir(default_media, media_dst)
 
-        css_src = self.pkgdir + "/style.css"
-        css_dst = self.blog_path + "/style.css"
-        if not os.path.exists(css_dst):
-            shutil.copyfile(css_src, css_dst)
-            logging.debug(f"Added {css_dst}")
+        css_dst = output_dir + "/style.css"
+        default_css = self.pkgdir + "/style.css"
+        custom_css = self.blog_path + "/style.css"
+        if os.path.exists(custom_css):
+            shutil.copyfile(custom_css, css_dst)
+        else:
+            shutil.copyfile(default_css, css_dst)
+        logging.debug(f"Copied static assets.")
 
     def write_articles(self, output_dir: str):
         template = self.j2env.get_template("article.html.j2")
@@ -247,18 +252,19 @@ class GitBlog:
     def _init_templating(self) -> jinja2.Environment:
         """Copy missing templates into the template dir if necessary
         and return a Jinja2Environment"""
-        # TODO move files in a temp dir to keep the cloned repo clean
-        templates_src = self.pkgdir + "/templates"
-        templates_dst = self.blog_path + "/templates"
-        sync_dir(templates_src, templates_dst, symlink=True)
+        templates_dst = self.workdir.name + "/templates"
+        custom_templates = self.blog_path + "/templates"
+        if os.path.exists(custom_templates):
+            sync_dir(custom_templates, templates_dst, symlink=True)
+        default_templates = self.pkgdir + "/templates"
+        sync_dir(default_templates, templates_dst, symlink=True)
         return jinja2.Environment(loader=jinja2.FileSystemLoader(templates_dst))
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if isinstance(self.clone_dir, TemporaryDirectory):
-            self.clone_dir.cleanup()
+        self.workdir.cleanup()
 
 
 def sync_dir(src: str, dst: str, symlink: bool = False):

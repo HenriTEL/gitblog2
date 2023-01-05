@@ -31,11 +31,11 @@ def cli(
     ),
 ):
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
+    logging.info(f"Generating blog into '{output_dir}'...")
     with GitBlog(source_repo, clone_dir, str(repo_subdir), fetch=fetch) as gb:
-        logging.info(f"Writing into '{output_dir}'...")
         gb.write_articles(output_dir)
         gb.write_indexes(output_dir)
-        gb.copy_static_assets()
+        gb.copy_static_assets(output_dir)
     logging.info("Done.")
 
 
