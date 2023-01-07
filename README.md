@@ -1,4 +1,4 @@
-# ![Gitblog2 Logo](gitblog2/media/favicon.svg "title") Gitblog2
+# ![Gitblog2 Logo](https://blog.henritel.com/media/favicon.svg "title") Gitblog2
 
 Git + Markdown = Blog
 
