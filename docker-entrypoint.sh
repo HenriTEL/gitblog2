@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 
-rm -r "${OUTPUT_DIR:-www}/"*
-echo "Cleaned content under ${OUTPUT_DIR:-www}/"
-./main.py
+OUTPUT_DIR="${OUTPUT_DIR:-/www}"
+rm -rf "${OUTPUT_DIR}/"*
+echo "Cleaned content under ${OUTPUT_DIR}"
+
+gitblog2 "${SOURCE_REPO}" "${OUTPUT_DIR}"
+
 for cmd in "$@"; do
-	"./providers/${cmd}.sh"
+	"/providers/${cmd}.sh"
 done

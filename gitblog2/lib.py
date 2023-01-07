@@ -5,6 +5,7 @@ import shutil
 from tempfile import TemporaryDirectory
 from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Tuple
 import pygit2
+from pygit2 import Blob, Commit, Repository, Tree, GIT_OBJ_TREE
 import logging
 import re
 
@@ -71,8 +72,8 @@ class GitBlog:
         return self._articles_metadata
 
     @property
-    def last_commit(self) -> pygit2.Commit:
-        return cast(pygit2.Commit, self.repo.revparse_single("HEAD"))
+    def last_commit(self) -> Commit:
+        return cast(Commit, self.repo.revparse_single("HEAD"))
 
     def write_blog(self, output_dir: str):
         self.write_articles(output_dir)
@@ -165,7 +166,7 @@ class GitBlog:
         )
 
     def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
-        def clean_commit(commit: pygit2.Commit) -> Dict[str, Any]:
+        def clean_commit(commit: Commit) -> Dict[str, Any]:
             commit_dt = datetime.fromtimestamp(commit.commit_time)
             # TODO use a proper data class here
             return {
@@ -175,43 +176,37 @@ class GitBlog:
                 "message": commit.message,
             }
 
-        for commit in self.repo.walk(self.repo.head.target, pygit2.GIT_SORT_TIME):
+        for commit in self.repo.walk(self.last_commit.id):
             if commit.parents:
                 prev = commit.parents[0]
                 diff = prev.tree.diff_to_tree(commit.tree)
                 for patch in diff:
                     path = patch.delta.new_file.path
                     if path.endswith(".md"):
-                        if (
-                            not self.repo_subdir
-                            or self.repo_subdir
-                            and path.startswith(self.repo_subdir + "/")
+                        if not self.repo_subdir or (
+                            self.repo_subdir and path.startswith(self.repo_subdir + "/")
                         ):
                             path = path.removeprefix(self.repo_subdir + "/")
-                        else:
-                            continue
-                        yield path, clean_commit(commit)
+                            yield path, clean_commit(commit)
 
     def gen_articles_content(
-        self, tree: Optional[pygit2.Tree] = None, path=""
+        self, tree: Optional[Tree] = None, path=""
     ) -> Generator[Tuple[str, str], None, None]:
         """Traverse repo files an return any (path, content) tuple corresponding to non blacklisted Markdown files.
         The path parameter is recursively constructed as we traverse the tree."""
         if tree is None:
             tree = self.last_commit.tree
         for obj in tree:
-            if obj.type == pygit2.GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
+            if obj.type == GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
                 obj_relpath = f"{path}{obj.name}/"
-                yield from self.gen_articles_content(
-                    cast(pygit2.Tree, obj), obj_relpath
-                )
+                yield from self.gen_articles_content(cast(Tree, obj), obj_relpath)
             elif (
                 cast(str, obj.name).endswith(".md")
                 and (not self.repo_subdir or path.startswith(self.repo_subdir + "/"))
                 and obj.name not in self.files_blacklist
             ):
                 obj_relpath = f"{path.removeprefix(self.repo_subdir + '/')}{obj.name}"
-                yield (obj_relpath, cast(pygit2.Blob, obj).data.decode("utf-8"))
+                yield (obj_relpath, cast(Blob, obj).data.decode("utf-8"))
             elif cast(str, obj.name).endswith(".md"):
                 logging.debug(f"Skipped {path}{obj.name}")
 
@@ -223,14 +218,14 @@ class GitBlog:
             for to_match in self.repo_subdir.split("/"):
                 obj = None
                 for obj in tree:
-                    if obj.type == pygit2.GIT_OBJ_TREE and obj.name == to_match:
-                        tree = cast(pygit2.Tree, obj)
+                    if obj.type == GIT_OBJ_TREE and obj.name == to_match:
+                        tree = cast(Tree, obj)
                         break
                 if obj is None or obj.name != to_match:
                     return
         # Enumerate all valid toplevel dirs
         for obj in tree:
-            if obj.type == pygit2.GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
+            if obj.type == GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
                 yield cast(str, obj.name)
 
     def parse_md(self, md_content: str) -> Tuple[str, str, str]:
@@ -246,17 +241,17 @@ class GitBlog:
         md_content = re.sub(desc_pattern, "", md_content, 1, re.MULTILINE)
         return title, desc, md_content
 
-    def _init_repo(self, fetch: bool = False) -> pygit2.Repository:
+    def _init_repo(self, fetch: bool = False) -> Repository:
         """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
         Optionally fetch changes after that."""
 
         cloned_already = os.path.exists(self.clone_dir + "/.git/")
         if cloned_already:
-            repo = pygit2.Repository(self.clone_dir)
+            repo = Repository(self.clone_dir)
         else:
             repo = pygit2.clone_repository(self.source_repo, self.clone_dir)
             logging.debug(f"Cloned repo into {self.clone_dir}")
-        repo = cast(pygit2.Repository, repo)
+        repo = cast(Repository, repo)
         if fetch:
             repo.remotes["origin"].fetch()
             logging.debug("Fetched last changes.")

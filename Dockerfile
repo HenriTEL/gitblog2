@@ -4,14 +4,9 @@ RUN apt update \
 	&& apt install -y zip \
 	&& rm -rf /var/lib/apt/lists/*
 RUN npm install -g npm wrangler purgecss postcss-cli autoprefixer cssnano
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN pip3 install gitblog2==0.2.3
 
-COPY main.py .
-COPY media media
-COPY css css
-COPY templates templates
-COPY providers providers
+COPY providers /providers
 
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
