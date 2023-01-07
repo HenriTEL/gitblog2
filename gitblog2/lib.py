@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Generator, List, Tuple
+from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Tuple
 import pygit2
 import logging
 import re
@@ -19,7 +19,7 @@ class GitBlog:
     def __init__(
         self,
         source_repo: str,
-        clone_dir: str = None,
+        clone_dir: Optional[str] = None,
         repo_subdir: str = "",
         dirs_blacklist: List[str] = ["draft", "media", "templates"],
         files_blacklist: List[str] = ["README.md", "LICENSE.md"],
@@ -47,7 +47,7 @@ class GitBlog:
         self.repo = self._init_repo(fetch)
         self.j2env = self._init_templating()
 
-        self.section_to_paths: Dict[str, list] = defaultdict(set)
+        self.section_to_paths: DefaultDict[str, set] = defaultdict(set)
         self._articles_metadata = None
         self._sections = None
 
@@ -72,7 +72,33 @@ class GitBlog:
 
     @property
     def last_commit(self) -> pygit2.Commit:
-        return self.repo[self.repo.head.target]
+        return cast(pygit2.Commit, self.repo.revparse_single("HEAD"))
+
+    def write_blog(self, output_dir: str):
+        self.write_articles(output_dir)
+        self.write_indexes(output_dir)
+        self.copy_static_assets(output_dir)
+
+    def write_articles(self, output_dir: str):
+        template = self.j2env.get_template("article.html.j2")
+        for path, content in self.gen_articles_content():
+            full_page = self.render_article(content, path, template)
+            target_path = output_dir + "/" + path.replace(".md", ".html")
+            _write_file(full_page, target_path)
+
+    def write_indexes(self, output_dir: str):
+        template = self.j2env.get_template("index.html.j2")
+        for section in self.sections:
+            target_path = f"{output_dir}/{section}/index.html"
+            try:
+                full_page = self.render_index(section, template)
+            except Exception as e:
+                logging.error(f"Failed to render index for section {section}")
+                raise e
+            _write_file(full_page, target_path)
+
+        home_page = self.render_index(template=template)
+        _write_file(home_page, f"{output_dir}/index.html")
 
     def copy_static_assets(self, output_dir: str):
         """Copy static assets from the repo into the outupt dir.
@@ -93,31 +119,23 @@ class GitBlog:
             shutil.copyfile(default_css, css_dst)
         logging.debug("Copied static assets.")
 
-    def write_articles(self, output_dir: str):
-        template = self.j2env.get_template("article.html.j2")
-        for path, content in self.gen_articles_content():
-            full_page = self.render_article(content, path, template)
-            target_path = output_dir + "/" + path.replace(".md", ".html")
-            _write_file(full_page, target_path)
-
     def render_article(
         self,
         content: str,
-        path: str = None,
-        template: jinja2.Template = None,
+        path: str,
+        template: Optional[jinja2.Template] = None,
     ) -> str:
         """content: Markdown content
         Return content in html format based on the jinja2 template"""
         if template is None:
             template = self.j2env.get_template("article.html.j2")
         title, description, md_content = self.parse_md(content)
-        if path is not None:
-            # TODO fix indexes not beeing rendered when render_article not previously called
-            self.articles_metadata[path]["relative_path"] = path[:-3]
-            self.articles_metadata[path]["title"] = title
-            self.articles_metadata[path]["description"] = description
-            section = path.split("/")[0]
-            self.section_to_paths[section].add(path)
+        # TODO fix indexes not beeing rendered when render_article not previously called
+        self.articles_metadata[path]["relative_path"] = path[:-3]
+        self.articles_metadata[path]["title"] = title
+        self.articles_metadata[path]["description"] = description
+        section = path.split("/")[0]
+        self.section_to_paths[section].add(path)
         html_content = markdown(md_content, extensions=MD_LIB_EXTENSIONS)
         return template.render(
             title=title,
@@ -127,24 +145,10 @@ class GitBlog:
             sections=self.sections,
         )
 
-    def write_indexes(self, output_dir: str):
-        template = self.j2env.get_template("index.html.j2")
-        for section in self.sections:
-            target_path = f"{output_dir}/{section}/index.html"
-            try:
-                full_page = self.render_index(section, template)
-            except Exception as e:
-                logging.error(f"Failed to render index for section {section}")
-                raise e
-            _write_file(full_page, target_path)
-
-        home_page = self.render_index(template=template)
-        _write_file(home_page, f"{output_dir}/index.html")
-
     def render_index(
         self,
-        section: str = None,
-        template: jinja2.Template = None,
+        section: Optional[str] = None,
+        template: Optional[jinja2.Template] = None,
     ) -> str:
         if template is None:
             template = self.j2env.get_template("index.html.j2")
@@ -161,9 +165,10 @@ class GitBlog:
             sections=self.sections,
         )
 
-    def gen_commits(self) -> Tuple[str, Dict[str, Any]]:
+    def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         def clean_commit(commit: pygit2.Commit) -> Dict[str, Any]:
             commit_dt = datetime.fromtimestamp(commit.commit_time)
+            # TODO use a proper data class here
             return {
                 "iso_time": commit_dt.isoformat(),
                 "human_time": commit_dt.strftime("%d %b %Y"),
@@ -185,7 +190,7 @@ class GitBlog:
                         yield path, clean_commit(commit)
 
     def gen_articles_content(
-        self, tree: pygit2.Tree = None, path=""
+        self, tree: Optional[pygit2.Tree] = None, path=""
     ) -> Generator[Tuple[str, str], None, None]:
         """Traverse repo files an return any (path, content) tuple corresponding to non blacklisted Markdown files.
         The path parameter is recursively constructed as we traverse the tree."""
@@ -193,34 +198,37 @@ class GitBlog:
             tree = self.last_commit.tree
         for obj in tree:
             if obj.type == pygit2.GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
-                obj_relpath = path + obj.name + "/"
-                yield from self.gen_articles_content(obj, obj_relpath)
+                obj_relpath = f"{path}{obj.name}/"
+                yield from self.gen_articles_content(
+                    cast(pygit2.Tree, obj), obj_relpath
+                )
             elif (
-                obj.name.endswith(".md")
+                cast(str, obj.name).endswith(".md")
                 and (not self.repo_subdir or path.startswith(self.repo_subdir + "/"))
                 and obj.name not in self.files_blacklist
             ):
-                obj_relpath = path.removeprefix(self.repo_subdir + "/") + obj.name
-                yield (obj_relpath, obj.data.decode("utf-8"))
-            elif obj.name.endswith(".md"):
-                logging.debug(f"Skipped {path + obj.name}")
+                obj_relpath = f"{path.removeprefix(self.repo_subdir + '/')}{obj.name}"
+                yield (obj_relpath, cast(pygit2.Blob, obj).data.decode("utf-8"))
+            elif cast(str, obj.name).endswith(".md"):
+                logging.debug(f"Skipped {path}{obj.name}")
 
     def gen_sections(self) -> Generator[str, None, None]:
+        """Yield all sections found for this blog"""
         tree = self.last_commit.tree
         # Move to the self.repo_subdir location
         if self.repo_subdir:
             for to_match in self.repo_subdir.split("/"):
+                obj = None
                 for obj in tree:
                     if obj.type == pygit2.GIT_OBJ_TREE and obj.name == to_match:
-                        tree = obj
+                        tree = cast(pygit2.Tree, obj)
                         break
-                if obj.name != to_match:
+                if obj is None or obj.name != to_match:
                     return
-
         # Enumerate all valid toplevel dirs
         for obj in tree:
             if obj.type == pygit2.GIT_OBJ_TREE and obj.name not in self.dirs_blacklist:
-                yield obj.name
+                yield cast(str, obj.name)
 
     def parse_md(self, md_content: str) -> Tuple[str, str, str]:
         """Return title, description and main_content of the article
@@ -246,6 +254,7 @@ class GitBlog:
         else:
             repo = pygit2.clone_repository(self.source_repo, self.clone_dir, bare=True)
             logging.debug(f"Cloned repo into {self.clone_dir}")
+        repo = cast(pygit2.Repository, repo)
         if fetch:
             repo.remotes["origin"].fetch()
             logging.debug("Fetched last changes.")

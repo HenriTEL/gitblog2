@@ -14,6 +14,7 @@ High priority:
 Low priority:
 
 * Fix root index.html not served by redbean
+* Make it work on non-unix systems (mainly dealing with windows file system separator)
 
 ## Installation
 
