@@ -5,6 +5,7 @@
 # Python
 __pycache__/
 dist/
+.venv/
 
 # Project specific
 www/

@@ -21,7 +21,7 @@ class GitBlog:
         source_repo: str,
         clone_dir: Optional[str] = None,
         repo_subdir: str = "",
-        dirs_blacklist: List[str] = ["draft", "media", "templates"],
+        dirs_blacklist: List[str] = ["draft", "media", "templates", ".github"],
         files_blacklist: List[str] = ["README.md", "LICENSE.md"],
         fetch: bool = False,
     ):
@@ -59,7 +59,7 @@ class GitBlog:
         return self._sections
 
     @property
-    def articles_metadata(self) -> defaultdict[str, Dict[str, Any]]:
+    def articles_metadata(self) -> DefaultDict[str, Dict[str, Any]]:
         if self._articles_metadata is None:
             self._articles_metadata = defaultdict(dict)
             for path, commit in self.gen_commits():
@@ -152,7 +152,6 @@ class GitBlog:
     ) -> str:
         if template is None:
             template = self.j2env.get_template("index.html.j2")
-
         if section is None:
             paths = [p for ps in self.section_to_paths.values() for p in ps]
             section = "Home"
@@ -176,14 +175,18 @@ class GitBlog:
                 "message": commit.message,
             }
 
-        for commit in self.repo.walk(self.repo.head.target):
+        for commit in self.repo.walk(self.repo.head.target, pygit2.GIT_SORT_TIME):
             if commit.parents:
                 prev = commit.parents[0]
                 diff = prev.tree.diff_to_tree(commit.tree)
                 for patch in diff:
                     path = patch.delta.new_file.path
                     if path.endswith(".md"):
-                        if self.repo_subdir and path.startswith(self.repo_subdir + "/"):
+                        if (
+                            not self.repo_subdir
+                            or self.repo_subdir
+                            and path.startswith(self.repo_subdir + "/")
+                        ):
                             path = path.removeprefix(self.repo_subdir + "/")
                         else:
                             continue
@@ -241,7 +244,6 @@ class GitBlog:
         md_content = re.sub(title_pattern, "", md_content, 1, re.MULTILINE)
         desc = re.search(desc_pattern, md_content, re.MULTILINE).group(1).rstrip()
         md_content = re.sub(desc_pattern, "", md_content, 1, re.MULTILINE)
-
         return title, desc, md_content
 
     def _init_repo(self, fetch: bool = False) -> pygit2.Repository:
@@ -252,7 +254,7 @@ class GitBlog:
         if cloned_already:
             repo = pygit2.Repository(self.clone_dir)
         else:
-            repo = pygit2.clone_repository(self.source_repo, self.clone_dir, bare=True)
+            repo = pygit2.clone_repository(self.source_repo, self.clone_dir)
             logging.debug(f"Cloned repo into {self.clone_dir}")
         repo = cast(pygit2.Repository, repo)
         if fetch:
