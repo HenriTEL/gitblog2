@@ -162,3 +162,7 @@ body>footer {
   display: flex;
   column-gap: 0.5rem;
 }
+
+body>footer>a {
+  display: flex;
+}
