@@ -40,9 +40,7 @@ from gitblog2 import GitBlog
 source_repo = "https://codeberg.org/HenriTEL/git-blog.git"
 output_dir = "./www"
 with GitBlog(source_repo, repo_subdir="example") as gb:
-    gb.write_articles(output_dir)
-    gb.write_indexes(output_dir)
-    gb.copy_static_assets(output_dir)
+    gb.write_blog(output_dir)
 ```
 
 As a container:
@@ -54,7 +52,7 @@ docker run --rm -v $PWD/www:/www \
     henritel/gitblog2
 ```
 
-## Deploy to Cloudflare-pages using Github action
+## Deploy to Cloudflare Pages using Github Actions
 
 You can write your blog on GitHub and automatically push changes to Cloudflare Pages using this GitHub Action:
 
@@ -77,6 +75,29 @@ jobs:
 ```
 
 Don't forget to set your cloudflare secrets.
+
+## Dev quickstart
+
+Make sure to have [poetry](https://python-poetry.org/) installed, then  
+Setup your local web server:
+
+```bash
+wget "https://redbean.dev/redbean-tiny-2.2.com" -O redbean.zip
+zip redbean.zip -j providers/assets/.init.lua
+chmod +x redbean.zip
+```
+
+In one terminal, update the blog as needed:
+
+```bash
+poetry run gitblog2 --repo-subdir example -l debug
+```
+
+In another terminal, serve the blog:
+
+```bash
+./redbean.zip -D ./www
+```
 
 ## Internals
 
