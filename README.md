@@ -6,9 +6,7 @@ Git + Markdown = Blog
 
 High priority:
 
-* if nb_commits > 1: last_commit else "Updated on last_commit < info_tooltip hover='published on first_commit'>"
 * Add bio and picture from github
-* Look at cool HTML elements: <https://tapajyoti-bose.medium.com/7-cool-html-elements-nobody-uses-436598d85668>
 * Draft support (set publish_date to first `mv`)
 * E2E tests
 
