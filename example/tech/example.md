@@ -14,7 +14,8 @@ def foo():
 ## Text format
 
 Some **bold** *italic* ***both*** formatting.  
-Embeded HTML for <s>Strikethrough</s> or <mark>Mark</mark>, much cool elements.
+Embeded HTML for <s>Strikethrough</s> or <mark>Mark</mark>, much cool.  
+Please press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> to reload.
 
 ## Markdown Extensions
 
