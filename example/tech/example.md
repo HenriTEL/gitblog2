@@ -14,6 +14,7 @@ def foo():
 ## Text format
 
 Some **bold** *italic* ***both*** formatting.  
+Embeded HTML for <s>Strikethrough</s> or <mark>Mark</mark>, much cool elements.
 
 ## Markdown Extensions
 
