@@ -7,6 +7,7 @@ Git + Markdown = Blog
 High priority:
 
 * Add bio and picture from github
+* make a script to publish new releases on git, pip and docker hub (alos update the Dockerfile)
 * Draft support (set publish_date to first `mv`)
 * E2E tests
 

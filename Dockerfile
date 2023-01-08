@@ -4,7 +4,7 @@ RUN apt update \
 	&& apt install -y zip \
 	&& rm -rf /var/lib/apt/lists/*
 RUN npm install -g npm wrangler purgecss postcss-cli autoprefixer cssnano
-RUN pip3 install gitblog2==0.2.3
+RUN pip3 install gitblog2==1.0.0
 
 COPY providers /providers
 
