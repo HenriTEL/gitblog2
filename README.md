@@ -2,7 +2,9 @@
 
 Git + Markdown = Blog  
 
-## What
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## What is this?
 
 This is a blog generator that keeps things simple...  
 
