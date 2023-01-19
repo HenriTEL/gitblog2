@@ -111,12 +111,14 @@ High priority:
 - make a script to publish new releases on git, pip and docker hub (also update the Dockerfile)
 - Add bio and picture from github
 - Add RSS feed
+- Add doc for customisation
 - Check draft support (set publish_date to first `mv`)
 - E2E tests
 
 Low priority:
 
 - Unit tests
+- Add contributing section
 - Add bio and picture from codeberg
 - Fix root index.html not served by redbean
 - Make it work on non-unix systems (mainly dealing with windows file system separator)
