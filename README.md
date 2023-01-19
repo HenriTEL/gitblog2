@@ -108,14 +108,16 @@ In another terminal, serve the blog:
 
 High priority:
 
-- Add bio and picture from github
 - make a script to publish new releases on git, pip and docker hub (also update the Dockerfile)
+- Add bio and picture from github
+- Add RSS feed
 - Check draft support (set publish_date to first `mv`)
 - E2E tests
 
 Low priority:
 
 - Unit tests
+- Add bio and picture from codeberg
 - Fix root index.html not served by redbean
 - Make it work on non-unix systems (mainly dealing with windows file system separator)
 
