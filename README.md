@@ -120,6 +120,7 @@ Low priority:
 - Unit tests
 - Add contributing section
 - Add bio and picture from codeberg
+- Remove div and classes from TOC and footnotes
 - Fix root index.html not served by redbean
 - Make it work on non-unix systems (mainly dealing with windows file system separator)
 
