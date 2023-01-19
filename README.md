@@ -108,7 +108,6 @@ In another terminal, serve the blog:
 
 High priority:
 
-- make a script to publish new releases on git, pip and docker hub (also update the Dockerfile)
 - Add bio and picture from github
 - Add RSS feed
 - Add doc for customisation
