@@ -24,34 +24,36 @@ You still have a lot of flexibility if you want to publish with another provider
 
 ## Quickstart
 
+**From zero to a live blog.**
+
 You can see the full setup of a working blog [here](https://github.com/HenriTEL/blog).  
-For this tutorial we assume you'll use Github to host your repo and Cloudflare Pages to host your blog. You need to have account on those platforms as a prerequisite.  
-Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.  
+For this tutorial we assume you'll use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have account on those platforms as a prerequisite.  
+
+1. Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.  
 Use a `draft/` folder to save posts that are not ready for publication.  
-Non Markdown files and common irrelevant content is ignored by default, e.g. `.github/`, `README.md`, `LICENSE.md`.  
+Non Markdown files and common irrelevant content is ignored by default, e.g. `.github/`, `README.md`, `LICENSE.md`.
 
-Add a `.github/workflows/publish.yaml` file to your repo with the following content:
-
-```yaml
-name: Publish Blog
-on:
-  push:
-    branches: [ main ]
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker://henritel/gitblog2
-        with:
-          args: post-css cloudflare-pages
-        env:
-          SOURCE_REPO: https://github.com/${{ github.repository }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-```
-
-This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
-In your repo's Github webpage, go under `settings/secrets/actions` to set your `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` variables based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key). We assume your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.  
+2. Add a `.github/workflows/publish.yaml` file to your repo with the following content:
+    ```yaml
+    name: Publish Blog
+    on:
+      push:
+        branches: [ main ]
+    jobs:
+      build-and-publish:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: docker://henritel/gitblog2
+            with:
+              args: post-css cloudflare-pages
+            env:
+              SOURCE_REPO: https://github.com/${{ github.repository }}
+              CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+              CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    ```
+    This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
+    It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
+3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key).  
 
 ## Installation
 
@@ -59,15 +61,15 @@ In your repo's Github webpage, go under `settings/secrets/actions` to set your `
 pip install gitblog2
 ```
 
-## Technical Usage
+## Usage
 
-As a command line:
+From the command line:
 
 ```bash
-gitblog https://codeberg.org/HenriTEL/git-blog.git --repo-subdir=example
+OUTPUT_DIR=./www gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example
 ```
 
-As a library:
+From the library:
 
 ```python
 from gitblog2 import GitBlog
@@ -78,7 +80,7 @@ with GitBlog(source_repo, repo_subdir="example") as gb:
     gb.write_blog(output_dir)
 ```
 
-As a container:
+From the container:
 
 ```bash
 docker run --rm -v $PWD/www:/www \
@@ -115,7 +117,7 @@ In another terminal, serve the blog:
 High priority:
 
 - Add bio and picture from github
-- Add RSS feed
+- Add Atom feed
 - Add image in README like https://github.com/nextcloud/server
 - Add doc for customisation
 - Check draft support (set publish_date to first `mv`)
