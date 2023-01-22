@@ -1,16 +1,19 @@
+from base64 import b64encode
 from collections import defaultdict
-from datetime import datetime
+import datetime
+import logging
 import os
+import re
 import shutil
 from tempfile import TemporaryDirectory
 from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Tuple
-import pygit2
-from pygit2 import Blob, Commit, Repository, Tree, GIT_OBJ_TREE
-import logging
-import re
+from urllib.parse import ParseResult
 
+from feedgen.feed import FeedGenerator
 import jinja2
 from markdown import markdown
+import pygit2
+from pygit2 import Blob, Commit, Repository, Tree, GIT_OBJ_TREE
 
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
@@ -75,9 +78,17 @@ class GitBlog:
     def last_commit(self) -> Commit:
         return cast(Commit, self.repo.revparse_single("HEAD"))
 
-    def write_blog(self, output_dir: str):
+    def write_blog(
+        self, output_dir: str, with_feed=True, url_base: Optional[ParseResult] = None
+    ):
         self.write_articles(output_dir)
-        self.write_indexes(output_dir)
+        self.write_indexes(output_dir, with_feed)
+        if with_feed:
+            if url_base is None:
+                raise ReferenceError(
+                    "You need to provide your website base URL in order to generate a feed."
+                )
+            self.write_feed(output_dir, url_base=url_base)
         self.copy_static_assets(output_dir)
 
     def write_articles(self, output_dir: str):
@@ -87,7 +98,7 @@ class GitBlog:
             target_path = output_dir + "/" + path.replace(".md", ".html")
             _write_file(full_page, target_path)
 
-    def write_indexes(self, output_dir: str):
+    def write_indexes(self, output_dir: str, with_feed=True):
         template = self.j2env.get_template("index.html.j2")
         for section in self.sections:
             target_path = f"{output_dir}/{section}/index.html"
@@ -98,27 +109,39 @@ class GitBlog:
                 raise e
             _write_file(full_page, target_path)
 
-        home_page = self.render_index(template=template)
+        home_page = self.render_index(template=template, add_feed_links=with_feed)
         _write_file(home_page, f"{output_dir}/index.html")
 
-    def copy_static_assets(self, output_dir: str):
-        """Copy static assets from the repo into the outupt dir.
-        Use files from the package if not found"""
-        media_dst = output_dir + "/media"
-        custom_media = self.blog_path + "/media"
-        if os.path.exists(custom_media):
-            sync_dir(custom_media, media_dst)
-        default_media = self.pkgdir + "/media"
-        sync_dir(default_media, media_dst)
-
-        css_dst = output_dir + "/style.css"
-        default_css = self.pkgdir + "/style.css"
-        custom_css = self.blog_path + "/style.css"
-        if os.path.exists(custom_css):
-            shutil.copyfile(custom_css, css_dst)
-        else:
-            shutil.copyfile(default_css, css_dst)
-        logging.debug("Copied static assets.")
+    def write_feed(self, output_dir: str, url_base: ParseResult):
+        url_hash = b64encode(url_base.geturl().encode()).decode()
+        feed_id = f"ni://{url_base.hostname}/base64;{url_hash}"
+        last_commit_dt = _get_commit_dt(self.last_commit)
+        author = self.last_commit.author.name
+        description = f"The latest news from {author}"
+        fg = FeedGenerator()
+        fg.id(feed_id)
+        fg.title(description)
+        fg.description(description)
+        fg.author(name=author)
+        fg.link(href=url_base.geturl())
+        fg.logo(url_base.geturl() + "/media/favicon.svg")
+        fg.updated(last_commit_dt)
+        for _, paths in self.section_to_paths.items():
+            for path in paths:
+                article = self.articles_metadata[path]
+                last_commit_dt = article["commits"][0]["iso_time"]
+                article_url = f"{url_base.geturl()}/{article['relative_path']}"
+                url_hash = b64encode(article_url.encode()).decode()
+                entry_id = f"ni://{url_base.hostname}/base64;{url_hash}"
+                fe = fg.add_entry()
+                fe.id(entry_id)
+                fe.title(article["title"])
+                fe.summary(article["description"])
+                fe.link(href=article_url, rel="alternate")
+                fe.updated(last_commit_dt)
+        fg.atom_file(output_dir + "/atom.xml")
+        fg.rss_file(output_dir + "/rss.xml")
+        logging.debug("Wrote syndication feeds.")
 
     def render_article(
         self,
@@ -150,6 +173,7 @@ class GitBlog:
         self,
         section: Optional[str] = None,
         template: Optional[jinja2.Template] = None,
+        add_feed_links: bool = False,
     ) -> str:
         if template is None:
             template = self.j2env.get_template("index.html.j2")
@@ -163,11 +187,31 @@ class GitBlog:
             title=section,
             articles=articles,
             sections=self.sections,
+            add_feed_links=add_feed_links,
         )
+
+    def copy_static_assets(self, output_dir: str):
+        """Copy static assets from the repo into the outupt dir.
+        Use files from the package if not found"""
+        media_dst = output_dir + "/media"
+        custom_media = self.blog_path + "/media"
+        if os.path.exists(custom_media):
+            sync_dir(custom_media, media_dst)
+        default_media = self.pkgdir + "/media"
+        sync_dir(default_media, media_dst)
+
+        css_dst = output_dir + "/style.css"
+        default_css = self.pkgdir + "/style.css"
+        custom_css = self.blog_path + "/style.css"
+        if os.path.exists(custom_css):
+            shutil.copyfile(custom_css, css_dst)
+        else:
+            shutil.copyfile(default_css, css_dst)
+        logging.debug("Copied static assets.")
 
     def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         def clean_commit(commit: Commit) -> Dict[str, Any]:
-            commit_dt = datetime.fromtimestamp(commit.commit_time)
+            commit_dt = _get_commit_dt(commit)
             # TODO use a proper data class here
             return {
                 "iso_time": commit_dt.isoformat(),
@@ -297,3 +341,10 @@ def _write_file(content: str, target_path: str):
 
 def _is_uri(repo_link: str):
     return repo_link.startswith(("http", "git@"))
+
+
+def _get_commit_dt(commit: Commit):
+    # TODO double check the comuted datetime
+    tz = datetime.timezone(datetime.timedelta(minutes=commit.commit_time_offset))
+    dt = datetime.datetime.fromtimestamp(commit.commit_time, tz=tz)
+    return dt

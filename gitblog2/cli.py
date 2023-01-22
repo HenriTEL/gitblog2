@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from enum import StrEnum, auto
-from typing import Optional
 import logging
+from typing import Optional
+from urllib.parse import urlparse
 
 import typer
 
@@ -31,11 +32,14 @@ def cli(
     loglevel: LogLevel = typer.Option(
         LogLevel.INFO, "--loglevel", "-l", envvar="LOG_LEVEL"
     ),
+    no_feed: bool = typer.Option(False, envvar="NO_FEED"),
+    url_base: str = typer.Option(None, envvar="URL_BASE"),
 ):
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
     logging.info(f"Generating blog into '{output_dir}'...")
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=fetch) as gb:
-        gb.write_blog(output_dir)
+        parsed_url = urlparse(url_base) if url_base is not None else None
+        gb.write_blog(output_dir, with_feed=not no_feed, url_base=parsed_url)
     logging.info("Done.")
 
 
