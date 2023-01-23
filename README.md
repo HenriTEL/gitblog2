@@ -50,7 +50,7 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
               CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     ```
 
-    Set URL_BASE with your blog's base url.  
+    Set `URL_BASE` with your blog's base url.  
     This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
     It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
 3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key).  
@@ -66,7 +66,7 @@ pip install gitblog2
 From the command line:
 
 ```bash
-OUTPUT_DIR=./www gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example
+gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com
 ```
 
 From the library:
