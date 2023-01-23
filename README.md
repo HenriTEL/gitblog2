@@ -45,10 +45,12 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
               args: post-css cloudflare-pages
             env:
               SOURCE_REPO: https://github.com/${{ github.repository }}
+              URL_BASE: <YOUR_BLOG_URL>
               CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     ```
 
+    Set URL_BASE with your blog's base url.  
     This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
     It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
 3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key).  
@@ -74,8 +76,9 @@ from gitblog2 import GitBlog
 
 source_repo = "https://codeberg.org/HenriTEL/git-blog.git"
 output_dir = "./www"
+url_base = "https://example.com"
 with GitBlog(source_repo, repo_subdir="example") as gb:
-    gb.write_blog(output_dir)
+    gb.write_blog(output_dir, url_base=url_base)
 ```
 
 From the container:
@@ -84,6 +87,7 @@ From the container:
 docker run --rm -v $PWD/www:/www \
     -e SOURCE_REPO=https://codeberg.org/HenriTEL/gitblog2.git \
     -e REPO_SUBDIR=example \
+    -e URL_BASE=https://example.com \
     henritel/gitblog2
 ```
 
@@ -105,7 +109,7 @@ chmod +x redbean.zip
 In one terminal, update the blog as needed:
 
 ```bash
-poetry run gitblog2 --repo-subdir example -l debug
+poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com
 ```
 
 In another terminal, serve the blog:
