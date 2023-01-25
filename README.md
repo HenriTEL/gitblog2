@@ -10,13 +10,13 @@
 
 A blog generator that keeps things simple:  
 
-- 🏄 **Easy to use** - Just make folders and write Markdown.
-- ⚡ **Minimal footprint** - No JavaScript, no divs, no class attributes, just semantic html.  
-- 🛠 **Familiar tech** - Git, Markdown, HTML, CSS, Jinja2 and Bash.
+* 🏄 **Easy to use** - Just write Markdown, no needs for <abbr title="Header of YAML content delimited by ---">Frontmatter</abbr>.
+* ⚡ **Minimal footprint** - No JavaScript, no divs, no class attributes, just semantic html.  
+* 🛠 **Familiar tech** - Git, Markdown, Jinja2 templating.
 
 With many features:
 
-- Atom and RSS feeds
+* 📢 Atom and RSS syndication feeds
 
 ## Getting Started
 
