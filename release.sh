@@ -7,7 +7,7 @@ if [[ $# -ne 1 ]]; then
 	exit 2
 fi
 
-poetry publish --build
+poetry publish --build --no-interaction || true
 
 GITBLOG2_VERSION=$(poetry version | awk '{print $2}')
 
