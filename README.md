@@ -16,7 +16,8 @@ A blog generator that keeps things simple:
 
 With many features:
 
-* 📢 Atom and RSS syndication feeds
+* **RSS feeds** - Atom also provided
+* **Avatars** - from your Github and Codeberg account
 
 ## Getting Started
 
@@ -122,7 +123,6 @@ In another terminal, serve the blog:
 
 High priority:
 
-- Add bio and picture from github
 - Add image in README like <https://github.com/nextcloud/server>
 - Add doc for customisation
 - Check draft support (set publish_date to first `mv`)
