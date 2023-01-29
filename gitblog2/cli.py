@@ -32,14 +32,20 @@ def cli(
     loglevel: LogLevel = typer.Option(
         LogLevel.INFO, "--loglevel", "-l", envvar="LOG_LEVEL"
     ),
-    no_feed: bool = typer.Option(False, envvar="NO_FEED"),
+    no_feeds: bool = typer.Option(False, envvar="NO_FEED"),
+    no_avatar: bool = typer.Option(False, envvar="NO_AVATAR"),
     url_base: str = typer.Option(None, envvar="URL_BASE"),
-):
+):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
     logging.info(f"Generating blog into '{output_dir}'...")
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=fetch) as gb:
         parsed_url = urlparse(url_base) if url_base is not None else None
-        gb.write_blog(output_dir, with_feed=not no_feed, url_base=parsed_url)
+        gb.write_blog(
+            output_dir,
+            with_feeds=(not no_feeds),
+            with_avatar=(not no_avatar),
+            url_base=parsed_url,
+        )
     logging.info("Done.")
 
 

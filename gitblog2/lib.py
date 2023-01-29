@@ -7,7 +7,8 @@ import re
 import shutil
 from tempfile import TemporaryDirectory
 from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Tuple
-from urllib.parse import ParseResult
+from urllib import request
+from urllib.parse import ParseResult, urlparse
 
 from feedgen.feed import FeedGenerator
 import jinja2
@@ -79,40 +80,52 @@ class GitBlog:
         return cast(Commit, self.repo.revparse_single("HEAD"))
 
     def write_blog(
-        self, output_dir: str, with_feed=True, url_base: Optional[ParseResult] = None
+        self,
+        output_dir: str,
+        with_feeds=True,
+        with_avatar=True,
+        url_base: Optional[ParseResult] = None,
     ):
-        self.write_articles(output_dir)
-        self.write_indexes(output_dir, with_feed)
-        if with_feed:
+        self.write_articles(output_dir, with_avatar=with_avatar)
+        self.write_indexes(output_dir, with_feeds, with_avatar=with_avatar)
+        if with_feeds:
             if url_base is None:
                 raise ReferenceError(
                     "You need to provide your website base URL in order to generate a feed."
                 )
-            self.write_feed(output_dir, url_base=url_base)
-        self.copy_static_assets(output_dir)
+            self.write_syndication_feeds(output_dir, url_base=url_base)
+        self.add_static_assets(output_dir)
+        if with_avatar:
+            self.download_avatar(output_dir)
 
-    def write_articles(self, output_dir: str):
+    def write_articles(self, output_dir: str, with_avatar=True):
         template = self.j2env.get_template("article.html.j2")
         for path, content in self.gen_articles_content():
-            full_page = self.render_article(content, path, template)
+            full_page = self.render_article(
+                content, path, template, with_avatar=with_avatar
+            )
             target_path = output_dir + "/" + path.replace(".md", ".html")
             _write_file(full_page, target_path)
 
-    def write_indexes(self, output_dir: str, with_feed=True):
+    def write_indexes(self, output_dir: str, with_feeds=True, with_avatar=True):
         template = self.j2env.get_template("index.html.j2")
         for section in self.sections:
             target_path = f"{output_dir}/{section}/index.html"
             try:
-                full_page = self.render_index(section, template)
+                full_page = self.render_index(
+                    section, template, with_avatar=with_avatar
+                )
             except Exception as e:
                 logging.error(f"Failed to render index for section {section}")
                 raise e
             _write_file(full_page, target_path)
 
-        home_page = self.render_index(template=template, add_feed_links=with_feed)
+        home_page = self.render_index(
+            template=template, with_feeds=with_feeds, with_avatar=with_avatar
+        )
         _write_file(home_page, f"{output_dir}/index.html")
 
-    def write_feed(self, output_dir: str, url_base: ParseResult):
+    def write_syndication_feeds(self, output_dir: str, url_base: ParseResult):
         url_hash = b64encode(url_base.geturl().encode()).decode()
         feed_id = f"ni://{url_base.hostname}/base64;{url_hash}"
         last_commit_dt = _get_commit_dt(self.last_commit)
@@ -148,6 +161,7 @@ class GitBlog:
         content: str,
         path: str,
         template: Optional[jinja2.Template] = None,
+        with_avatar=True,
     ) -> str:
         """content: Markdown content
         Return content in html format based on the jinja2 template"""
@@ -167,17 +181,20 @@ class GitBlog:
             main_content=html_content,
             commits=self.articles_metadata[path]["commits"],
             sections=self.sections,
+            avatar_src="/media/avatar" if with_avatar else None,
         )
 
     def render_index(
         self,
         section: Optional[str] = None,
         template: Optional[jinja2.Template] = None,
-        add_feed_links: bool = False,
+        with_feeds=False,
+        with_avatar=False,
     ) -> str:
         if template is None:
             template = self.j2env.get_template("index.html.j2")
         if section is None:
+            # TODO sort by publication date
             paths = [p for ps in self.section_to_paths.values() for p in ps]
             section = "Home"
         else:
@@ -187,10 +204,11 @@ class GitBlog:
             title=section,
             articles=articles,
             sections=self.sections,
-            add_feed_links=add_feed_links,
+            feeds={"atom": "/atom.xml", "rss": "/rss.xml"} if with_feeds else {},
+            avatar_src="/media/avatar" if with_avatar else None,
         )
 
-    def copy_static_assets(self, output_dir: str):
+    def add_static_assets(self, output_dir: str):
         """Copy static assets from the repo into the outupt dir.
         Use files from the package if not found"""
         media_dst = output_dir + "/media"
@@ -207,7 +225,48 @@ class GitBlog:
             shutil.copyfile(custom_css, css_dst)
         else:
             shutil.copyfile(default_css, css_dst)
-        logging.debug("Copied static assets.")
+        logging.debug("Added static assets.")
+
+    def download_avatar(self, output_dir: str):
+        avatar_dst = output_dir + "/media/avatar"
+        repo_uri = None
+        if os.path.exists(avatar_dst):
+            return
+        # TODO try to get uri from .git/config as a fallback
+        if _is_uri(self.source_repo):
+            repo_uri = _parse_uri(self.source_repo)
+        else:
+            git_config = self.source_repo + "/.git/config"
+            if not os.path.exists(git_config):
+                return
+            # TODO better parse toml and move to a specific function
+            url_prefix = "\turl = "
+            with open(git_config) as gc:
+                for line in gc:
+                    if line.startswith(url_prefix):
+                        print(line)
+                        repo_uri = _parse_uri(line.lstrip(url_prefix))
+                        break
+        if not repo_uri:
+            return
+        avatar_url = None
+        if repo_uri.hostname == "github.com":
+            username = repo_uri.path.split("/")[0]
+            avatar_url = "https://avatars.githubusercontent.com/" + username
+        elif repo_uri.hostname == "codeberg.org":
+            # TODO move to a specific function
+            username = repo_uri.path.split("/")[0]
+            user_page = (
+                request.urlopen("https://codeberg.org/" + username).read().decode()
+            )
+            meta_pattern = r'<meta .+"(https://codeberg.org/avatars/\w+)">'
+            avatar_url = (
+                re.search(meta_pattern, user_page, re.MULTILINE).group(1).rstrip()
+            )
+
+        if avatar_url:
+            request.urlretrieve(avatar_url, avatar_dst)
+            logging.debug("Downloaded avatar.")
 
     def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         def clean_commit(commit: Commit) -> Dict[str, Any]:
@@ -341,6 +400,15 @@ def _write_file(content: str, target_path: str):
 
 def _is_uri(repo_link: str):
     return repo_link.startswith(("http", "git@"))
+
+
+def _parse_uri(repo_link: str) -> ParseResult:
+    if repo_link.startswith("http"):
+        return urlparse(repo_link)
+    netloc, path = repo_link.split(":")
+    return ParseResult(
+        scheme="ssh", netloc=netloc, path=path, params="", query="", fragment=""
+    )
 
 
 def _get_commit_dt(commit: Commit):

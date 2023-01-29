@@ -20,11 +20,10 @@
         <header>
             <h1>{{ title }}</h1>
             <small>
-                {% if commits|length > 1 -%}
-                <abbr title="Published on {{ commits[-1].human_time }}">{{ commits[0].human_time }}</abbr>
-                {% else -%}
-                {{ commits[0].human_time }}
-                {% endif -%}
+                {% if commits|length > 1 %}
+                Updated on
+                {% endif %}
+                {{ commits[-1].human_time }}
             </small><br />
             {% if description -%}
             <span>{{ description }}</span>
@@ -43,7 +42,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {%- for commit in commits[:5] %}
+                        {%- for commit in commits %}
                         <tr>
                             <td><small>{{ commit.human_time }}</small></td>
                             <td>{{ commit.message|trim }}</td>
