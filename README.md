@@ -126,6 +126,9 @@ High priority:
 - Add image in README like <https://github.com/nextcloud/server>
 - Add doc for customisation
 - Check draft support (set publish_date to first `mv`)
+- Deal with TODOs or make issues for newcomers
+- Add contributing section
+- Add showcase section
 - E2E tests
 
 Low priority:
