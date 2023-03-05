@@ -10,7 +10,7 @@
 
 A blog generator that keeps things simple:  
 
-* 🏄 **Easy to use** - Just write Markdown, no needs for <abbr title="Header of YAML content delimited by ---">Frontmatter</abbr>.
+* 🏄 **Easy to use** - Just write Markdown, no need for a metadata header.
 * ⚡ **Minimal footprint** - No JavaScript, no divs, no class attributes, just semantic html.  
 * 🛠 **Familiar tech** - Git, Markdown, Jinja2 templating.
 
@@ -123,6 +123,10 @@ In another terminal, serve the blog:
 
 High priority:
 
+- Fix workflow
+- Calendar icon + read duration like in https://www.andreinc.net/2023/02/01/demystifying-bitwise-ops
+- Move author details in a sidebar
+- Move nav back on top, reduce it in mobile mode
 - Add image in README like <https://github.com/nextcloud/server>
 - Add doc for customisation
 - Check draft support (set publish_date to first `mv`)
