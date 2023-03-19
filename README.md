@@ -86,7 +86,7 @@ From the container:
 
 ```bash
 docker run --rm -v $PWD/www:/www \
-    -e SOURCE_REPO=https://codeberg.org/HenriTEL/gitblog2.git \
+    -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
     -e REPO_SUBDIR=example \
     -e URL_BASE=https://example.com \
     henritel/gitblog2
@@ -123,26 +123,26 @@ In another terminal, serve the blog:
 
 High priority:
 
-- Fix workflow
-- Calendar icon + read duration like in https://www.andreinc.net/2023/02/01/demystifying-bitwise-ops
-- Move author details in a sidebar
-- Move nav back on top, reduce it in mobile mode
-- Add image in README like <https://github.com/nextcloud/server>
-- Add doc for customisation
-- Check draft support (set publish_date to first `mv`)
-- Deal with TODOs or make issues for newcomers
-- Add contributing section
-- Add showcase section
-- E2E tests
+* Fix workflow
+* Calendar icon + read duration like in <https://www.andreinc.net/2023/02/01/demystifying-bitwise-ops>
+* Move author details in a sidebar
+* Move nav back on top, reduce it in mobile mode
+* Add image in README like <https://github.com/nextcloud/server>
+* Add doc for customisation
+* Check draft support (set publish_date to first `mv`)
+* Deal with TODOs or make issues for newcomers
+* Add contributing section
+* Add showcase section
+* E2E tests
 
 Low priority:
 
-- Unit tests
-- Add contributing section
-- Add bio and picture from codeberg
-- Remove div and classes from TOC and footnotes
-- Fix root index.html not served by redbean
-- Make it work on non-unix systems (mainly dealing with windows file system separator)
+* Unit tests
+* Add contributing section
+* Add bio and picture from codeberg
+* Remove div and classes from TOC and footnotes
+* Fix root index.html not served by redbean
+* Make it work on non-unix systems (mainly dealing with windows file system separator)
 
 ## Internals
 
