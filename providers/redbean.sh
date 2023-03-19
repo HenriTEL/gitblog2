@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 OUTPUT_DIR="${OUTPUT_DIR:-/www}"
 
