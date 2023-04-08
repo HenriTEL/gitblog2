@@ -15,6 +15,7 @@ import jinja2
 from markdown import markdown
 import pygit2
 from pygit2 import Blob, Commit, Repository, Tree, GIT_OBJ_TREE
+import requests
 
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
@@ -84,16 +85,16 @@ class GitBlog:
         output_dir: str,
         with_feeds=True,
         with_avatar=True,
-        url_base: Optional[ParseResult] = None,
+        base_url: Optional[ParseResult] = None,
     ):
         self.write_articles(output_dir, with_avatar=with_avatar)
         self.write_indexes(output_dir, with_feeds, with_avatar=with_avatar)
         if with_feeds:
-            if url_base is None:
+            if base_url is None:
                 raise ReferenceError(
                     "You need to provide your website base URL in order to generate a feed."
                 )
-            self.write_syndication_feeds(output_dir, url_base=url_base)
+            self.write_syndication_feeds(output_dir, base_url=base_url)
         self.add_static_assets(output_dir)
         if with_avatar:
             self.download_avatar(output_dir)
@@ -125,9 +126,9 @@ class GitBlog:
         )
         _write_file(home_page, f"{output_dir}/index.html")
 
-    def write_syndication_feeds(self, output_dir: str, url_base: ParseResult):
-        url_hash = b64encode(url_base.geturl().encode()).decode()
-        feed_id = f"ni://{url_base.hostname}/base64;{url_hash}"
+    def write_syndication_feeds(self, output_dir: str, base_url: ParseResult):
+        url_hash = b64encode(base_url.geturl().encode()).decode()
+        feed_id = f"ni://{base_url.hostname}/base64;{url_hash}"
         last_commit_dt = _get_commit_dt(self.last_commit)
         author = self.last_commit.author.name
         description = f"The latest news from {author}"
@@ -136,16 +137,16 @@ class GitBlog:
         fg.title(description)
         fg.description(description)
         fg.author(name=author)
-        fg.link(href=url_base.geturl())
-        fg.logo(url_base.geturl() + "/media/favicon.svg")
+        fg.link(href=base_url.geturl())
+        fg.logo(base_url.geturl() + "/media/favicon.svg")
         fg.updated(last_commit_dt)
         for _, paths in self.section_to_paths.items():
             for path in paths:
                 article = self.articles_metadata[path]
                 last_commit_dt = article["commits"][0]["iso_time"]
-                article_url = f"{url_base.geturl()}/{article['relative_path']}"
+                article_url = f"{base_url.geturl()}/{article['relative_path']}"
                 url_hash = b64encode(article_url.encode()).decode()
-                entry_id = f"ni://{url_base.hostname}/base64;{url_hash}"
+                entry_id = f"ni://{base_url.hostname}/base64;{url_hash}"
                 fe = fg.add_entry()
                 fe.id(entry_id)
                 fe.title(article["title"])
@@ -228,9 +229,10 @@ class GitBlog:
         logging.debug("Added static assets.")
 
     def download_avatar(self, output_dir: str):
-        avatar_dst = output_dir + "/media/avatar"
+        avatar_dst = output_dir + "/media/avatar.jpg"
         repo_uri = None
         if os.path.exists(avatar_dst):
+            # TODO add no-cache option
             return
         # TODO try to get uri from .git/config as a fallback
         if _is_uri(self.source_repo):
@@ -244,7 +246,6 @@ class GitBlog:
             with open(git_config) as gc:
                 for line in gc:
                     if line.startswith(url_prefix):
-                        print(line)
                         repo_uri = _parse_uri(line.lstrip(url_prefix))
                         break
         if not repo_uri:
@@ -252,21 +253,21 @@ class GitBlog:
         avatar_url = None
         if repo_uri.hostname == "github.com":
             username = repo_uri.path.split("/")[0]
-            avatar_url = "https://avatars.githubusercontent.com/" + username
+            response = requests.get("https://api.github.com/users/" + username)
+            avatar_url = response.json()["avatar_url"]
         elif repo_uri.hostname == "codeberg.org":
-            # TODO move to a specific function
-            username = repo_uri.path.split("/")[0]
-            user_page = (
-                request.urlopen("https://codeberg.org/" + username).read().decode()
-            )
-            meta_pattern = r'<meta .+"(https://codeberg.org/avatars/\w+)">'
-            avatar_url = (
-                re.search(meta_pattern, user_page, re.MULTILINE).group(1).rstrip()
-            )
+            avatar_url = self._get_codeberg_avatar_url(repo_uri)
 
         if avatar_url:
             request.urlretrieve(avatar_url, avatar_dst)
             logging.debug("Downloaded avatar.")
+
+    def _get_codeberg_avatar_url(repo_uri: ParseResult) -> str:
+        username = repo_uri.path.split("/")[0]
+        user_page = request.urlopen("https://codeberg.org/" + username).read().decode()
+        meta_pattern = r'<meta .+"(https://codeberg.org/avatars/\w+)">'
+        avatar_url = re.search(meta_pattern, user_page, re.MULTILINE).group(1)
+        return avatar_url.rstrip()
 
     def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         def clean_commit(commit: Commit) -> Dict[str, Any]:
