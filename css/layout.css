@@ -1,49 +1,83 @@
+/*
+# Normal Flow
+-- How Block and Inline elements are displayed
+
+display: <outside> <inside>;
+  1. outside determine the direction in the global flow
+      inline = in the direction of words (left to right)
+      block = in the direction of paragraphs (top to bottom)
+      > p is a block element while a is inline
+  2. inside specify the elements's inner display
+      flex = behaves like a block and lays content according to flexbox properties
+
+  
+
+
+
+position
+display
+
+# Box model
+margin
+border - element start
+padding
+content
+
+*/
+
 body {
-  max-width: 544px;
-  margin: 2em auto;
+  min-height: 100vh;
+  max-width: 644px;
+  margin: auto auto;
   padding: 0 10px;
 }
 
 nav {
-
+	float: left;
   padding: 6px;
 
-  >a {
+  > * {
+    display: block;
+  }
+
+  > a {
     padding: 1rem;
   }
 
-  ul {
+	& img {
+		max-height: 100px;
+	}
+
+  & ul {
     margin: 0;
     padding: 0;
 
-    li {
+    & li {
       display: inline-block;
 
-      &:hover {
-        ul {
+      &:hover ul {
           display: block;
-        }
       }
 
-      a {
+      & a {
         display: block;
         padding: 0 1rem;
       }
 
-      ul {
+      & ul {
         display: none;
         position: absolute;
         z-index: 500;
         padding: .5em 1.15em;
 
-        li {
+        & li {
           display: block;
           text-align: left;
           float: none;
           padding: .3em .2em;
         }
 
-        a {
+        & a {
           display: inline;
           padding: 0;
         }
@@ -156,10 +190,20 @@ footer {
 }
 
 
-body>footer {
+body > footer {
   margin-top: 40px;
+
+  /* Stick to bottom */
+  position: absolute;
+  bottom: 0;
+
+  /* Center horizontally */
+  left: 50vw;
+  transform: translate(-50%);
+
   display: flex;
   column-gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 body>footer>a {

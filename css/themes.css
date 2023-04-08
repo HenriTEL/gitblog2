@@ -103,22 +103,26 @@ nav {
 	/* background: $background; */
 	font-size: 1.15em;
 
-	>a {
+	> a {
 		padding: 1rem;
 	}
 
-	ul {
+	& img {
+		border-radius: 50%;
+	}
 
-		li {
+	& ul {
 
-			a {
+		& li {
+
+			& a {
 				text-decoration: none;
 			}
 
-			ul {
+			& ul {
 
 				/* background: $background; */
-				a {
+				& a {
 					font-size: .9em;
 				}
 			}
