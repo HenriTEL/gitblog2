@@ -94,7 +94,7 @@ docker run --rm -v $PWD/www:/www \
 
 ## Customisation
 
-Gitblog2 just produces static file so it should easily integrate with the stack you're familiar with (cron jobs, commit hooks, nginx, Apache, you name it.).
+Gitblog2 just produces static file so it should easily integrate with the stack you're familiar with (cron jobs, commit hooks, nginx, apache, you name it.).
 
 ## Dev quickstart
 
@@ -102,6 +102,7 @@ Make sure to have [poetry](https://python-poetry.org/) installed, then
 Setup your local web server:
 
 ```bash
+poetry install
 wget "https://redbean.dev/redbean-tiny-2.2.com" -O redbean.zip
 zip redbean.zip -j providers/assets/.init.lua
 chmod +x redbean.zip

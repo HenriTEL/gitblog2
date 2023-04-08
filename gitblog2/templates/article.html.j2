@@ -29,7 +29,9 @@
             <span>{{ description }}</span>
             {%- endif %}
         </header>
-        {{ main_content }}
+        <main>
+            {{ main_content }}
+        </main>
         {%- if commits|length > 1 -%}
         <footer>
             <details>
