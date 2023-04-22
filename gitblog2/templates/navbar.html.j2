@@ -1,9 +1,4 @@
 <nav>
-        {% if avatar_src -%}
-        <a href="/"> <img src="{{avatar_src}}"> </a>
-        {%- else %}
-        <a href="/"> <img src="/media/favicon.svg"> </a>
-        {%- endif %}
         <a href="/"><strong>Home</strong></a>
         {%- for section in sections %}
         <a href="/{{ section|lower }}"><strong>{{ section|title }}</strong></a>

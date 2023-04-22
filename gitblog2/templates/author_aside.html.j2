@@ -1,0 +1,13 @@
+<aside>
+	<img width="96px" src="{{avatar_url}}"><br />
+	{{ commits[0].author.name }}<br />
+	<address>
+		{%- for website, url in social_accounts.items() %}
+		<a href="{{ url }}" title="{{ website }}">
+			<svg>
+				<use xlink:href="/media/icons.svg#{{ website }}" />
+			</svg>
+		</a>
+		{%- endfor %}
+	</address>
+</aside>

@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
     {% include "head_common.html.j2" %}
@@ -9,7 +9,9 @@
 </head>
 
 <body>
-    {% include "navbar.html.j2" %}
+    <header>
+        {% include "navbar.html.j2" %}
+    </header>
 
     <main>
         {%- for article in articles %}
@@ -22,8 +24,9 @@
             <p>
                 {{ article.description }}
             </p>
-            <small>{{ article.commits[-1].human_time }}</small>
-            <hr />
+            {% with commits=article.commits, read_time_minutes=article.read_time_minutes %}
+            {% include "article_datetimes.html.j2" %}
+            {% endwith %}
         </article>
         {%- endfor %}
     </main>

@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Tuple
 from urllib import request
 from urllib.parse import ParseResult, urlparse
+from functools import cached_property
 
 from feedgen.feed import FeedGenerator
 import jinja2
@@ -19,6 +20,12 @@ import requests
 
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
+MD_LIB_EXTENSION_CONFIGS = {"toc": {"title": " Table of contents"}}
+GITHUB_API_HEADERS = {
+    "Accept": "application/vnd.github+json",
+    "Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}",
+    "X-GitHub-Api-Version": "2022-11-28",
+}
 
 
 class GitBlog:
@@ -54,67 +61,93 @@ class GitBlog:
         self.j2env = self._init_templating()
 
         self.section_to_paths: DefaultDict[str, set] = defaultdict(set)
-        self._articles_metadata = None
-        self._sections = None
 
-    @property
+    @cached_property
     def sections(self) -> List[str]:
-        if self._sections is None:
-            self._sections = list(self.gen_sections())
-            logging.debug("Built sections.")
-        return self._sections
+        _sections = list(self.gen_sections())
+        logging.debug("Built sections.")
+        return _sections
 
-    @property
+    @cached_property
     def articles_metadata(self) -> DefaultDict[str, Dict[str, Any]]:
-        if self._articles_metadata is None:
-            self._articles_metadata = defaultdict(dict)
-            for path, commit in self.gen_commits():
-                if "commits" in self._articles_metadata[path]:
-                    self._articles_metadata[path]["commits"].append(commit)
-                else:
-                    self._articles_metadata[path]["commits"] = [commit]
-            logging.debug("Built articles_metadata.")
-        return self._articles_metadata
+        _articles_metadata = defaultdict(dict)
+        for path, commit in self.gen_commits():
+            if "commits" in _articles_metadata[path]:
+                _articles_metadata[path]["commits"].append(commit)
+            else:
+                _articles_metadata[path]["commits"] = [commit]
+        logging.debug("Built articles_metadata.")
+        return _articles_metadata
 
     @property
     def last_commit(self) -> Commit:
         return cast(Commit, self.repo.revparse_single("HEAD"))
 
+    @cached_property
+    def repo_uri(self) -> Optional[ParseResult]:
+        if _is_uri(self.source_repo):
+            return _parse_uri(self.source_repo)
+        git_config = self.source_repo + "/.git/config"
+        url_prefix = "\turl = "
+        if not os.path.exists(git_config):
+            return None
+        # TODO better parse toml and move to a specific function
+        with open(git_config) as gc:
+            for line in gc:
+                if line.startswith(url_prefix):
+                    return _parse_uri(line.lstrip(url_prefix))
+        return None
+
+    @cached_property
+    def social_accounts(self) -> Dict[str, str]:
+        _social_accounts = {"syndication": "/atom.xml"}
+        if self.repo_uri.hostname == "github.com":
+            _social_accounts["github"] = (
+                "https://github.com/" + self.repo_uri.path.split("/")[0]
+            )
+            gh_social_accounts: List[Dict[str, str]] = self._github_api_get(
+                "/user/social_accounts"
+            )
+            for account in gh_social_accounts:
+                _social_accounts[account["provider"]] = account["url"]
+        return _social_accounts
+
     def write_blog(
         self,
         output_dir: str,
         with_feeds=True,
-        with_avatar=True,
+        with_social=True,
         base_url: Optional[ParseResult] = None,
     ):
-        self.write_articles(output_dir, with_avatar=with_avatar)
-        self.write_indexes(output_dir, with_feeds, with_avatar=with_avatar)
+        if with_social:
+            self.download_avatar(output_dir)
+
+        self.write_articles(output_dir, with_social=with_social)
+        self.write_indexes(output_dir, with_feeds, with_social=with_social)
         if with_feeds:
             if base_url is None:
-                raise ReferenceError(
+                raise ValueError(
                     "You need to provide your website base URL in order to generate a feed."
                 )
             self.write_syndication_feeds(output_dir, base_url=base_url)
         self.add_static_assets(output_dir)
-        if with_avatar:
-            self.download_avatar(output_dir)
 
-    def write_articles(self, output_dir: str, with_avatar=True):
+    def write_articles(self, output_dir: str, with_social=True):
         template = self.j2env.get_template("article.html.j2")
         for path, content in self.gen_articles_content():
             full_page = self.render_article(
-                content, path, template, with_avatar=with_avatar
+                content, path, template, with_social=with_social
             )
             target_path = output_dir + "/" + path.replace(".md", ".html")
             _write_file(full_page, target_path)
 
-    def write_indexes(self, output_dir: str, with_feeds=True, with_avatar=True):
+    def write_indexes(self, output_dir: str, with_feeds=True, with_social=True):
         template = self.j2env.get_template("index.html.j2")
         for section in self.sections:
             target_path = f"{output_dir}/{section}/index.html"
             try:
                 full_page = self.render_index(
-                    section, template, with_avatar=with_avatar
+                    section, template, with_social=with_social
                 )
             except Exception as e:
                 logging.error(f"Failed to render index for section {section}")
@@ -122,7 +155,7 @@ class GitBlog:
             _write_file(full_page, target_path)
 
         home_page = self.render_index(
-            template=template, with_feeds=with_feeds, with_avatar=with_avatar
+            template=template, with_feeds=with_feeds, with_social=with_social
         )
         _write_file(home_page, f"{output_dir}/index.html")
 
@@ -162,7 +195,7 @@ class GitBlog:
         content: str,
         path: str,
         template: Optional[jinja2.Template] = None,
-        with_avatar=True,
+        with_social=True,
     ) -> str:
         """content: Markdown content
         Return content in html format based on the jinja2 template"""
@@ -173,16 +206,23 @@ class GitBlog:
         self.articles_metadata[path]["relative_path"] = path[:-3]
         self.articles_metadata[path]["title"] = title
         self.articles_metadata[path]["description"] = description
+        self.articles_metadata[path]["read_time_minutes"] = len(md_content) // 200 + 1
         section = path.split("/")[0]
         self.section_to_paths[section].add(path)
-        html_content = markdown(md_content, extensions=MD_LIB_EXTENSIONS)
+        html_content = markdown(
+            md_content,
+            extensions=MD_LIB_EXTENSIONS,
+            extension_configs=MD_LIB_EXTENSION_CONFIGS,
+        )
         return template.render(
             title=title,
             description=description,
             main_content=html_content,
             commits=self.articles_metadata[path]["commits"],
             sections=self.sections,
-            avatar_src="/media/avatar" if with_avatar else None,
+            read_time_minutes=self.articles_metadata[path]["read_time_minutes"],
+            avatar_url="/media/avatar" if with_social else None,
+            social_accounts=self.social_accounts if with_social else None,
         )
 
     def render_index(
@@ -190,7 +230,7 @@ class GitBlog:
         section: Optional[str] = None,
         template: Optional[jinja2.Template] = None,
         with_feeds=False,
-        with_avatar=False,
+        with_social=False,
     ) -> str:
         if template is None:
             template = self.j2env.get_template("index.html.j2")
@@ -206,7 +246,7 @@ class GitBlog:
             articles=articles,
             sections=self.sections,
             feeds={"atom": "/atom.xml", "rss": "/rss.xml"} if with_feeds else {},
-            avatar_src="/media/avatar" if with_avatar else None,
+            avatar_src="/media/avatar" if with_social else None,
         )
 
     def add_static_assets(self, output_dir: str):
@@ -229,41 +269,25 @@ class GitBlog:
         logging.debug("Added static assets.")
 
     def download_avatar(self, output_dir: str):
-        avatar_dst = output_dir + "/media/avatar.jpg"
-        repo_uri = None
+        avatar_dst = output_dir + "/media/avatar"
         if os.path.exists(avatar_dst):
             # TODO add no-cache option
             return
-        # TODO try to get uri from .git/config as a fallback
-        if _is_uri(self.source_repo):
-            repo_uri = _parse_uri(self.source_repo)
-        else:
-            git_config = self.source_repo + "/.git/config"
-            if not os.path.exists(git_config):
-                return
-            # TODO better parse toml and move to a specific function
-            url_prefix = "\turl = "
-            with open(git_config) as gc:
-                for line in gc:
-                    if line.startswith(url_prefix):
-                        repo_uri = _parse_uri(line.lstrip(url_prefix))
-                        break
-        if not repo_uri:
+        if not self.repo_uri:
             return
         avatar_url = None
-        if repo_uri.hostname == "github.com":
-            username = repo_uri.path.split("/")[0]
-            response = requests.get("https://api.github.com/users/" + username)
-            avatar_url = response.json()["avatar_url"]
-        elif repo_uri.hostname == "codeberg.org":
-            avatar_url = self._get_codeberg_avatar_url(repo_uri)
+        if self.repo_uri.hostname == "github.com":
+            avatar_url = self._github_api_get("/user")["avatar_url"]
+        elif self.repo_uri.hostname == "codeberg.org":
+            avatar_url = self._get_codeberg_avatar_url()
 
         if avatar_url:
-            request.urlretrieve(avatar_url, avatar_dst)
-            logging.debug("Downloaded avatar.")
+            _, response = request.urlretrieve(avatar_url, avatar_dst)
+            logging.info("Avatar downloaded.")
+            logging.debug("Avatar download response headers:\n%s", response)
 
-    def _get_codeberg_avatar_url(repo_uri: ParseResult) -> str:
-        username = repo_uri.path.split("/")[0]
+    def _get_codeberg_avatar_url(self) -> str:
+        username = self.repo_uri.path.split("/")[0]
         user_page = request.urlopen("https://codeberg.org/" + username).read().decode()
         meta_pattern = r'<meta .+"(https://codeberg.org/avatars/\w+)">'
         avatar_url = re.search(meta_pattern, user_page, re.MULTILINE).group(1)
@@ -344,6 +368,13 @@ class GitBlog:
         desc = re.search(desc_pattern, md_content, re.MULTILINE).group(1).rstrip()
         md_content = re.sub(desc_pattern, "", md_content, 1, re.MULTILINE)
         return title, desc, md_content
+
+    def _github_api_get(self, resource: str):
+        response = requests.get(
+            "https://api.github.com" + resource, headers=GITHUB_API_HEADERS
+        )
+        response.raise_for_status()
+        return response.json()
 
     def _init_repo(self, fetch: bool = False) -> Repository:
         """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.

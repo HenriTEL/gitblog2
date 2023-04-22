@@ -33,7 +33,7 @@ def cli(
         LogLevel.INFO, "--loglevel", "-l", envvar="LOG_LEVEL"
     ),
     no_feeds: bool = typer.Option(False, envvar="NO_FEED"),
-    no_avatar: bool = typer.Option(False, envvar="NO_AVATAR"),
+    no_social: bool = typer.Option(False, envvar="NO_SOCIAL"),
     base_url: str = typer.Option(None, envvar="BASE_URL"),
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
@@ -43,7 +43,7 @@ def cli(
         gb.write_blog(
             output_dir,
             with_feeds=(not no_feeds),
-            with_avatar=(not no_avatar),
+            with_social=(not no_social),
             base_url=parsed_url,
         )
     logging.info("Done.")

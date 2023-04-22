@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
     {% include "head_common.html.j2" %}
@@ -15,24 +15,20 @@
 </head>
 
 <body>
-    {% include "navbar.html.j2" %}
-    <article>
-        <header>
-            <h1>{{ title }}</h1>
-            <small>
-                {% if commits|length > 1 %}
-                Updated on
-                {% endif %}
-                {{ commits[-1].human_time }}
-            </small><br />
-            {% if description -%}
-            <span>{{ description }}</span>
-            {%- endif %}
-        </header>
-        <main>
-            {{ main_content }}
-        </main>
-        {%- if commits|length > 1 -%}
+    <header>
+        {% include "navbar.html.j2" %}
+        <h1>{{ title }}</h1>
+        {%- if avatar_url and social_accounts %}
+        {% include "author_aside.html.j2" %}
+        {%- endif %}
+        {% if description -%}
+        <p>{{ description }}</p>
+        {%- endif %}
+        {% include "article_datetimes.html.j2" %}
+    </header>
+    <main>
+        {{ main_content }}
+        {%- if commits|length > 1 %}
         <footer>
             <details>
                 <summary>Changelog</summary>
@@ -55,7 +51,7 @@
             </details>
         </footer>
         {%- endif %}
-    </article>
+    </main>
     {% with author_name=commits[0].author.name %}
     {% include "footer.html.j2" %}
     {% endwith %}

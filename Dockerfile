@@ -1,14 +1,11 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 ARG GITBLOG2_VERSION
 
-ENV APK_BUILD_DEPS="gcc musl-dev"
-
-RUN apk add --update nodejs npm zip libgit2-dev ${APK_BUILD_DEPS} \
-	&& npm install -g wrangler purgecss postcss-cli autoprefixer cssnano \
-	&& pip3 install --no-cache-dir gitblog2==${GITBLOG2_VERSION} \
-	&& apk del ${APK_BUILD_DEPS} \
-	&& rm -rf /var/cache/apk/*
+RUN apt update \
+	&& apt install -y nodejs npm zip libgit2-dev gcc \
+	&& npm install -g wrangler purgecss postcss-cli autoprefixer cssnano
+RUN pip3 install --no-cache-dir gitblog2==${GITBLOG2_VERSION}
 
 COPY providers/ /providers
 

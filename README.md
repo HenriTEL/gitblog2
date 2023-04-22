@@ -3,7 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)  
 
 **Git + Markdown = Blog**  
-
 **Check the [live demo](https://blog.henritel.com)**  
 
 ## What is this?
@@ -17,7 +16,7 @@ A blog generator that keeps things simple:
 With many features:
 
 * **RSS feeds** - Atom also provided
-* **Avatars** - from your Github and Codeberg account
+* **Profile card** - based on your Github profile
 
 ## Getting Started
 
@@ -46,15 +45,17 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
               args: post-css cloudflare-pages
             env:
               SOURCE_REPO: https://github.com/${{ github.repository }}
-              URL_BASE: <YOUR_BLOG_URL>
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              BASE_URL: <YOUR_BLOG_URL>
               CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     ```
 
-    Set `URL_BASE` with your blog's base url.  
+    Set `BASE_URL` with your blog's base url.  
     This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
     It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
 3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key).  
+You don't need to setup `GITHUB_TOKEN` as it will be provided a run time by GitHub.
 
 ## Installation
 
@@ -67,7 +68,7 @@ pip install gitblog2
 From the command line:
 
 ```bash
-gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com
+gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com --no-social
 ```
 
 From the library:
@@ -79,7 +80,7 @@ source_repo = "https://codeberg.org/HenriTEL/git-blog.git"
 output_dir = "./www"
 url_base = "https://example.com"
 with GitBlog(source_repo, repo_subdir="example") as gb:
-    gb.write_blog(output_dir, url_base=url_base)
+    gb.write_blog(output_dir, base_url=url_base, with_social=False)
 ```
 
 From the container:
@@ -89,12 +90,14 @@ docker run --rm -v $PWD/www:/www \
     -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
     -e REPO_SUBDIR=example \
     -e URL_BASE=https://example.com \
+    -e NO_SOCIAL=true \
     henritel/gitblog2
 ```
 
 ## Customisation
 
-Gitblog2 just produces static file so it should easily integrate with the stack you're familiar with (cron jobs, commit hooks, nginx, apache, you name it.).
+Gitblog2 just produces static file so it should easily integrate with the stack you're familiar with (cron jobs, commit hooks, nginx, apache, you name it.).  
+You can use <https://simplecss.org/demo> as an alternate stylesheet.
 
 ## Dev quickstart
 
@@ -111,7 +114,7 @@ chmod +x redbean.zip
 In one terminal, update the blog as needed:
 
 ```bash
-poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com
+poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com --no-social
 ```
 
 In another terminal, serve the blog:
@@ -124,27 +127,26 @@ In another terminal, serve the blog:
 
 High priority:
 
-* Fix workflow
-* Calendar icon + read duration like in <https://www.andreinc.net/2023/02/01/demystifying-bitwise-ops>
-* Move author details in a sidebar
-* Move nav back on top, reduce it in mobile mode
+* Fix gh workflow
 * Add image in README like <https://github.com/nextcloud/server>
-* Add doc for customisation
-* Check draft support (set publish_date to first `mv`)
-* Deal with TODOs or make issues for newcomers
-* Add contributing section
-* Add showcase section
-* E2E tests
 
 Low priority:
 
+* Check draft support (set meta publish_date to first `mv`)
+* E2E tests
+* Deal with TODOs or make issues for newcomers
+* Add doc for customisation
+* Make a better TOC extension (remove div and classes)
 * Unit tests
 * Add contributing section
-* Add bio and picture from codeberg
-* Remove div and classes from TOC and footnotes
-* Fix root index.html not served by redbean
-* Make it work on non-unix systems (mainly dealing with windows file system separator)
+* Remove div and classes from footnotes
 
-## Internals
+## Golden resources
 
-Stylesheet is based on water.css
+<https://modernfontstacks.com/>
+<https://anthonyhobday.com/sideprojects/saferules/>
+<https://lawsofux.com/>
+<https://developer.mozilla.org/en-US/docs/Web/HTML>
+<https://developer.mozilla.org/en-US/docs/Web/CSS>
+<https://developer.mozilla.org/en-US/docs/Web/SVG>
+<https://icons.getbootstrap.com/>
