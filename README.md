@@ -16,14 +16,14 @@ A blog generator that keeps things simple:
 With many features:
 
 * **RSS feeds** - Atom also provided
-* **Profile card** - based on your Github profile
+* **Avatar and social accounts** - based on your Github profile
 
 ## Getting Started
 
 **From zero to a live blog.**
 
 You can see the full setup of a working blog [here](https://github.com/HenriTEL/blog).  
-For this tutorial we assume you'll use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have account on those platforms as a prerequisite.  
+For this tutorial we assume you'll use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have accounts on those platforms as a prerequisite.  
 
 1. Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.  
 Use a `draft/` folder to save posts that are not ready for publication.  
