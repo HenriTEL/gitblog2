@@ -10,17 +10,15 @@
 
 <body>
     <header>
+        {% with commits=articles[0].commits %}
         {% include "navbar.html.j2" %}
+        {% endwith %}
     </header>
 
     <main>
         {%- for article in articles %}
         <article>
-            <header>
-                <a href="/{{ article.relative_path }}">
-                    <h2>{{ article.title }}</h2>
-                </a>
-            </header>
+            <h2><a href="/{{ article.relative_path }}">{{ article.title }}</a></h2>
             <p>
                 {{ article.description }}
             </p>

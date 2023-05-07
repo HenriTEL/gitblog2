@@ -8,7 +8,7 @@
 	--primary-color: hwb(var(--primary-hue) 12% 6%);
 	--primary-color-major: hwb(var(--primary-hue) 24% 0%);
 	--background-0: hwb(0deg 98% 2%);
-	--background-1: hwb(0deg 94% 6%);
+	--background-1: hwb(0deg 80% 20%);
 	--text-main: black;
 	--text-muted: hwb(0deg 50% 50%);
 	--highlight: hwb(60 0% 0%);
@@ -19,7 +19,7 @@
 	:root {
 		--background-0: hwb(0deg 2% 98%);
 		--background-1: hwb(0deg 12% 88%);
-		--text-main: hwb(0deg 90% 10%);
+		--text-main: hwb(0deg 80% 20%);
 		--text-muted: hwb(0deg 60% 40%);
 		--highlight: hwb(60 0% 20%);
 	}
@@ -36,24 +36,23 @@ body {
 	text-rendering: optimizeLegibility;
 }
 
-body>main {
-	border-top: 1px solid var(--background-1);
+body>header img {
+	border-radius: 50%;
 }
 
-nav {
-	background-color: var(--background-1);
-	border-radius: 0px 0px 12px 12px;
+/* body>main {
+	border-top: 1px solid var(--background-1);
+} */
+
+header nav {
 	color: var(--primary-color-minor);
 	font-family: var(--title-font);
+	box-shadow: 0 5px 5px -6px var(--text-main);
 }
 
 aside {
 	background-color: var(--background-1);
 	border-radius: 12px;
-}
-
-aside img {
-	border-radius: 50%;
 }
 
 h1 {
@@ -73,6 +72,7 @@ h6,
 th {
 	font-family: var(--title-font);
 	font-weight: 200;
+	line-height: 1.1;
 }
 
 blockquote,
@@ -209,8 +209,9 @@ summary:focus {
 }
 
 body>footer {
-	background-color: var(--background-1);
-	border-radius: 12px 12px 0px 0px;
+	border-top: 1px solid var(--background-1);
+	/* background-color: var(--background-1);
+	border-radius: 12px 12px 0px 0px; */
 }
 
 @media print {

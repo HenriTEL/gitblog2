@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gitblog2"
-version = "1.3.0"
+version = "1.3.2"
 description = "Git + Markdown = blog"
 authors = ["Henri Hannetel <henri.hannetel@pm.me>"]
 license = "MIT"

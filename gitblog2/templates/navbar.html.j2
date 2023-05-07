@@ -1,6 +1,11 @@
 <nav>
-        <a href="/"><strong>Home</strong></a>
-        {%- for section in sections %}
-        <a href="/{{ section|lower }}"><strong>{{ section|title }}</strong></a>
-        {%- endfor %}
+        <ul>
+                {%- if avatar_url %}
+                <li><img class="icon" heigth="48px" width="48px" src="{{avatar_url}}"></li>
+                <li>{{ commits[0].author.name }}'s<br /> Blog</li>&nbsp;&nbsp;
+                {%- endif %}
+                {%- for section in sections %}
+                <li><a href="/{{ section|lower }}"><strong>{{ section|title }}</strong></a></li>
+                {%- endfor %}
+        </ul>
 </nav>

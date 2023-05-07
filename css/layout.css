@@ -29,20 +29,43 @@ sup {
 /* Normalize end
    ========================================================================== */
 
+body {
+  margin: 0;
+}
 
-nav,
 body>footer {
   text-align: center;
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-nav a+a {
-  margin-left: 10px;
+nav li+li {
+  margin-left: 1rem;
 }
 
-body {
-  max-width: 57ch;
+header>:not(nav) {
+  max-width: 40rem;
+  margin: auto auto;
+}
+
+header nav {
+  padding: 0.5rem 0 0.5rem 0;
+  margin-bottom: 30px;
+}
+
+header nav ul,
+header nav ol {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+body>main {
+  max-width: 40rem;
   margin: auto auto;
   padding: 0 10px;
 
@@ -52,36 +75,21 @@ body {
   grid-template-rows: auto 1fr auto;
 }
 
-body>header {
-  padding-bottom: 2.2rem;
+
+header img {
+  vertical-align: middle;
 }
+
 
 body>main {
   padding-top: 2rem;
 }
 
-aside {
-  float: right;
-  margin-left: 14px;
-  margin-top: 14px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
-aside address {
-  font-size: 1.25rem;
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-}
-
-
-h1 {
+h1,
+h2:first-of-type {
   margin-top: 3.75rem;
-  margin-bottom: 12px;
+  margin-bottom: 1.5rem;
 }
 
 h2,
@@ -89,8 +97,32 @@ h3,
 h4,
 h5,
 h6 {
-  margin-bottom: 12px;
-  margin-top: 24px;
+  margin-bottom: 1.5rem;
+  margin-top: 6rem;
+}
+
+h2 {
+  font-size: 2.6rem;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.44rem;
+}
+
+h5 {
+  font-size: 1.15rem;
+}
+
+h6 {
+  font-size: 0.96rem;
+}
+
+a {
+  display: inline-block;
 }
 
 blockquote,

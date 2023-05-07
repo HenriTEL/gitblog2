@@ -246,7 +246,8 @@ class GitBlog:
             articles=articles,
             sections=self.sections,
             feeds={"atom": "/atom.xml", "rss": "/rss.xml"} if with_feeds else {},
-            avatar_src="/media/avatar" if with_social else None,
+            avatar_url="/media/avatar" if with_social else None,
+            social_accounts=self.social_accounts if with_social else None,
         )
 
     def add_static_assets(self, output_dir: str):
@@ -282,6 +283,7 @@ class GitBlog:
             avatar_url = self._get_codeberg_avatar_url()
 
         if avatar_url:
+            os.makedirs(os.path.dirname(avatar_dst), exist_ok=True)
             _, response = request.urlretrieve(avatar_url, avatar_dst)
             logging.info("Avatar downloaded.")
             logging.debug("Avatar download response headers:\n%s", response)

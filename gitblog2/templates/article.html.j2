@@ -18,13 +18,12 @@
     <header>
         {% include "navbar.html.j2" %}
         <h1>{{ title }}</h1>
-        {%- if avatar_url and social_accounts %}
-        {% include "author_aside.html.j2" %}
-        {%- endif %}
-        {% if description -%}
-        <p>{{ description }}</p>
-        {%- endif %}
-        {% include "article_datetimes.html.j2" %}
+        <p>
+            {% if description -%}
+            {{ description }}<br />
+            {%- endif %}
+            {% include "article_datetimes.html.j2" %}
+        </p>
     </header>
     <main>
         {{ main_content }}
