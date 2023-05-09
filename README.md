@@ -127,7 +127,7 @@ In another terminal, serve the blog:
 
 High priority:
 
-* Fix gh workflow
+* Upgade GITHUB TOKEN and doc
 * Add image in README like <https://github.com/nextcloud/server>
 
 Low priority:
@@ -135,6 +135,7 @@ Low priority:
 * Check draft support (set meta publish_date to first `mv`)
 * E2E tests
 * Deal with TODOs or make issues for newcomers
+* Improve score on <https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop>
 * Add doc for customisation
 * Make a better TOC extension (remove div and classes)
 * Unit tests
