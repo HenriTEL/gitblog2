@@ -144,22 +144,22 @@ Low priority:
 
 ## Golden resources
 
-<https://modernfontstacks.com/>
-<https://anthonyhobday.com/sideprojects/saferules/>
-<https://lawsofux.com/>
-<https://developer.mozilla.org/en-US/docs/Web/HTML>
-<https://developer.mozilla.org/en-US/docs/Web/CSS>
-<https://developer.mozilla.org/en-US/docs/Web/SVG>
-<https://icons.getbootstrap.com/>
+<https://modernfontstacks.com/>  
+<https://anthonyhobday.com/sideprojects/saferules/>  
+<https://lawsofux.com/>  
+<https://developer.mozilla.org/en-US/docs/Web/HTML>  
+<https://developer.mozilla.org/en-US/docs/Web/CSS>  
+<https://developer.mozilla.org/en-US/docs/Web/SVG>  
+<https://icons.getbootstrap.com/>  
 
 ## Classless stylesheets candidates
 
-<https://github.com/kevquirk/simple.css/blob/main/simple.css>
+<https://github.com/kevquirk/simple.css/blob/main/simple.css>  
 
-<https://github.com/yegor256/tacit>
-<https://github.com/kognise/water.css>
-<https://github.com/xz/new.css>
-<https://github.com/edwardtufte/tufte-css>
-<https://github.com/programble/writ>
-<https://github.com/oxalorg/sakura>
-<https://github.com/susam/spcss>
+<https://github.com/yegor256/tacit>  
+<https://github.com/kognise/water.css>  
+<https://github.com/xz/new.css>  
+<https://github.com/edwardtufte/tufte-css>  
+<https://github.com/programble/writ>  
+<https://github.com/oxalorg/sakura>  
+<https://github.com/susam/spcss>  
