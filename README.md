@@ -45,8 +45,8 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
               args: post-css cloudflare-pages
             env:
               SOURCE_REPO: https://github.com/${{ github.repository }}
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               BASE_URL: <YOUR_BLOG_URL>
+              GITHUB_TOKEN: ${{ secrets.RO_GITHUB_TOKEN }}
               CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     ```
@@ -54,8 +54,7 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
     Set `BASE_URL` with your blog's base url.  
     This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
     It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
-3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key).  
-You don't need to setup `GITHUB_TOKEN` as it will be provided a run time by GitHub.
+3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key). Also setup a `RO_GITHUB_TOKEN` if you want to add social capabilities like a profile pic and links to social accounts. Go to <https://github.com/settings/tokens/> to generate a token with `read:user` access rights.
 
 ## Installation
 
