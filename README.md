@@ -9,13 +9,15 @@
 
 A blog generator that keeps things simple:  
 
-* 🏄 **Easy to use** - Just write Markdown, no need for a metadata header.
-* ⚡ **Minimal footprint** - No JavaScript, no divs, no class attributes, just semantic html.  
-* 🛠 **Familiar tech** - Git, Markdown, Jinja2 templating.
+* 🏄 **Straight forward usage** - Just write Markdown.
+* ⚡ **Minimal footprint** - about 15KB uncompressed.
+* 🌐 **Universal** - No JavaScript, no divs, no css classes, just semantic html.  
+* 🛠 **Familiar tooling** - Git, Markdown, Jinja2.
 
-With many features:
+While provinding modern features:
 
-* **RSS feeds** - Atom also provided
+* **Modern look** - with support for other stylesheets
+* **RSS and Atom feeds**
 * **Avatar and social accounts** - based on your Github profile
 
 ## Getting Started
