@@ -128,7 +128,7 @@ In another terminal, serve the blog:
 
 High priority:
 
-* Upgade GITHUB TOKEN and doc
+* Move the doc to the wiki with different audiences.
 * Add image in README like <https://github.com/nextcloud/server>
 
 Low priority:
