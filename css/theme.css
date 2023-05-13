@@ -115,6 +115,9 @@ a>strong {
 	color: inherit;
 }
 
+a>svg {
+	color: var(--primary-color);
+}
 a>svg:hover {
 	color: var(--primary-color-major);
 }
