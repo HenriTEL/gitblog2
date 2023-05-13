@@ -134,6 +134,7 @@ High priority:
 Low priority:
 
 * Check draft support (set meta publish_date to first `mv`)
+* Make a script to remove unused icons
 * E2E tests
 * Deal with TODOs or make issues for newcomers
 * Improve score on <https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop>
