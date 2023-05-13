@@ -23,6 +23,10 @@
 		--text-muted: hwb(0deg 60% 40%);
 		--highlight: hwb(60 0% 20%);
 	}
+	img,
+  	video {
+    		opacity: 0.8;
+  	}
 }
 
 body {
