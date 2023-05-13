@@ -27,29 +27,6 @@
     </header>
     <main>
         {{ main_content }}
-        {%- if commits|length > 1 %}
-        <footer>
-            <details>
-                <summary>Changelog</summary>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%- for commit in commits %}
-                        <tr>
-                            <td><small>{{ commit.human_time }}</small></td>
-                            <td>{{ commit.message|trim }}</td>
-                        </tr>
-                        {%- endfor %}
-                    </tbody>
-                </table>
-            </details>
-        </footer>
-        {%- endif %}
     </main>
     {% with author_name=commits[0].author.name %}
     {% include "footer.html.j2" %}
