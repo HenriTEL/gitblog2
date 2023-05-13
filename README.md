@@ -128,9 +128,6 @@ In another terminal, serve the blog:
 
 High priority:
 
-* Fix the main content left and right margins on mobile
-* Fix the margins between header children
-* Improve `inline` code styling
 * Move the doc to the wiki with different audiences.
 * Add image in README like <https://github.com/nextcloud/server>
 
