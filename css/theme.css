@@ -10,7 +10,7 @@
 	--background-0: hwb(0deg 98% 2%);
 	--background-1: hwb(0deg 80% 20%);
 	--text-main: black;
-	--text-muted: hwb(0deg 50% 50%);
+	--text-muted: hwb(0deg 75% 25%);
 	--highlight: hwb(60 0% 0%);
 	--text-highlight: black;
 }
