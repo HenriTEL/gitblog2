@@ -10,7 +10,7 @@
 	--background-0: hwb(0deg 98% 2%);
 	--background-1: hwb(0deg 80% 20%);
 	--text-main: black;
-	--text-muted: hwb(0deg 75% 25%);
+	--text-muted: hwb(0deg 25% 75%);
 	--highlight: hwb(60 0% 0%);
 	--text-highlight: black;
 }
@@ -23,10 +23,11 @@
 		--text-muted: hwb(0deg 60% 40%);
 		--highlight: hwb(60 0% 20%);
 	}
+
 	img,
-  	video {
-    		opacity: 0.8;
-  	}
+	video {
+		opacity: 0.8;
+	}
 }
 
 body {
@@ -111,7 +112,7 @@ a {
 
 a:hover {
 	text-decoration: none;
-	color: var(--primary-color);  
+	color: var(--primary-color);
 }
 
 a>code,
@@ -122,6 +123,7 @@ a>strong {
 a>svg {
 	color: var(--primary-color);
 }
+
 a>svg:hover {
 	color: var(--primary-color-major);
 }

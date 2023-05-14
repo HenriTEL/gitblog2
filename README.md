@@ -9,7 +9,7 @@
 
 A blog generator that keeps things simple:  
 
-* 🏄 **Straight forward usage** - Just write Markdown.
+* 🏄 **Straightforward to use** - Just write Markdown.
 * ⚡ **Minimal footprint** - about 15KB uncompressed.
 * 🌐 **Universal** - No JavaScript, no divs, no css classes, just semantic html.  
 * 🛠 **Familiar tooling** - Git, Markdown, Jinja2.
@@ -133,14 +133,22 @@ High priority:
 
 Low priority:
 
+* Add about page (and link to it from pp) based on user bio and README.md
 * Check draft support (set meta publish_date to first `mv`)
-* Make a script to remove unused icons
+* Use user's profile handle first and commit author only as a fallback
 * E2E tests
 * Deal with TODOs or make issues for newcomers
 * Improve score on <https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop>
 * Add doc for customisation
+  * Change template + accessible variables
+  * Add icons
+  * Change main color theme
+* Make a script to remove unused icons
 * Make a better TOC extension (remove div and classes)
-* Unit tests
+* Make markdown renderer set loading="lazy" on img tags
+* Unit tests, pagespeed test
+* Linting (pylint + pyre?)
+* Refactor lib.py into multiple files
 * Add contributing section
 * Remove div and classes from footnotes
 
