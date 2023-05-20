@@ -206,7 +206,9 @@ class GitBlog:
         self.articles_metadata[path]["relative_path"] = path[:-3]
         self.articles_metadata[path]["title"] = title
         self.articles_metadata[path]["description"] = description
-        self.articles_metadata[path]["read_time_minutes"] = len(md_content) // 200 + 1
+        self.articles_metadata[path]["read_time_minutes"] = (
+            len(md_content.split(" ")) // 200
+        ) or 1
         section = path.split("/")[0]
         self.section_to_paths[section].add(path)
         html_content = markdown(
