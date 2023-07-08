@@ -9,7 +9,7 @@
 
 A blog generator that keeps things simple:  
 
-* 🏄 **Straightforward to use** - Just write Markdown.
+* 🏄 **Straightforward** - Just write Markdown.
 * ⚡ **Minimal footprint** - about 15KB uncompressed.
 * 🌐 **Universal** - No JavaScript, no divs, no css classes, just semantic html.  
 * 🛠 **Familiar tooling** - Git, Markdown, Jinja2.
