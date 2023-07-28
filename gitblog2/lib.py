@@ -34,8 +34,8 @@ class GitBlog:
         source_repo: str,
         clone_dir: Optional[str] = None,
         repo_subdir: str = "",
-        dirs_blacklist: List[str] = ["draft", "media", "templates", ".github"],
-        files_blacklist: List[str] = ["README.md", "LICENSE.md"],
+        dirs_blacklist: Tuple[str] = ("draft", "media", "templates", ".github"),
+        files_blacklist: Tuple[str] = ("README.md", "LICENSE.md"),
         fetch: bool = False,
     ):
         self.source_repo = source_repo
@@ -92,8 +92,8 @@ class GitBlog:
         if not os.path.exists(git_config):
             return None
         # TODO better parse toml and move to a specific function
-        with open(git_config) as gc:
-            for line in gc:
+        with open(git_config, encoding="utf-8") as gh_conf:
+            for line in gh_conf:
                 if line.startswith(url_prefix):
                     return _parse_uri(line.lstrip(url_prefix))
         return None
@@ -119,16 +119,16 @@ class GitBlog:
         with_social=True,
         base_url: Optional[ParseResult] = None,
     ):
+        if with_feeds and not base_url:
+            raise ValueError(
+                "You need to provide your website base URL in order to generate a feed."
+            )
         if with_social:
             self.download_avatar(output_dir)
 
         self.write_articles(output_dir, with_social=with_social)
         self.write_indexes(output_dir, with_feeds, with_social=with_social)
         if with_feeds:
-            if base_url is None:
-                raise ValueError(
-                    "You need to provide your website base URL in order to generate a feed."
-                )
             self.write_syndication_feeds(output_dir, base_url=base_url)
         self.add_static_assets(output_dir)
 
@@ -149,9 +149,9 @@ class GitBlog:
                 full_page = self.render_index(
                     section, template, with_social=with_social
                 )
-            except Exception as e:
-                logging.error(f"Failed to render index for section {section}")
-                raise e
+            except Exception as ex:
+                logging.error("Failed to render index for section %s", section)
+                raise ex
             _write_file(full_page, target_path)
 
         home_page = self.render_index(
@@ -165,14 +165,14 @@ class GitBlog:
         last_commit_dt = _get_commit_dt(self.last_commit)
         author = self.last_commit.author.name
         description = f"The latest news from {author}"
-        fg = FeedGenerator()
-        fg.id(feed_id)
-        fg.title(description)
-        fg.description(description)
-        fg.author(name=author)
-        fg.link(href=base_url.geturl())
-        fg.logo(base_url.geturl() + "/media/favicon.svg")
-        fg.updated(last_commit_dt)
+        feed = FeedGenerator()
+        feed.id(feed_id)
+        feed.title(description)
+        feed.description(description)
+        feed.author(name=author)
+        feed.link(href=base_url.geturl())
+        feed.logo(base_url.geturl() + "/media/favicon.svg")
+        feed.updated(last_commit_dt)
         for _, paths in self.section_to_paths.items():
             for path in paths:
                 article = self.articles_metadata[path]
@@ -180,14 +180,14 @@ class GitBlog:
                 article_url = f"{base_url.geturl()}/{article['relative_path']}"
                 url_hash = b64encode(article_url.encode()).decode()
                 entry_id = f"ni://{base_url.hostname}/base64;{url_hash}"
-                fe = fg.add_entry()
-                fe.id(entry_id)
-                fe.title(article["title"])
-                fe.summary(article["description"])
-                fe.link(href=article_url, rel="alternate")
-                fe.updated(last_commit_dt)
-        fg.atom_file(output_dir + "/atom.xml")
-        fg.rss_file(output_dir + "/rss.xml")
+                feed_entry = feed.add_entry()
+                feed_entry.id(entry_id)
+                feed_entry.title(article["title"])
+                feed_entry.summary(article["description"])
+                feed_entry.link(href=article_url, rel="alternate")
+                feed_entry.updated(last_commit_dt)
+        feed.atom_file(output_dir + "/atom.xml")
+        feed.rss_file(output_dir + "/rss.xml")
         logging.debug("Wrote syndication feeds.")
 
     def render_article(
@@ -338,7 +338,7 @@ class GitBlog:
                 obj_relpath = f"{path.removeprefix(self.repo_subdir + '/')}{obj.name}"
                 yield (obj_relpath, cast(Blob, obj).data.decode("utf-8"))
             elif cast(str, obj.name).endswith(".md"):
-                logging.debug(f"Skipped {path}{obj.name}")
+                logging.debug("Skipped %s%s", path, obj.name)
 
     def gen_sections(self) -> Generator[str, None, None]:
         """Yield all sections found for this blog"""
@@ -373,7 +373,7 @@ class GitBlog:
 
     def _github_api_get(self, resource: str):
         response = requests.get(
-            "https://api.github.com" + resource, headers=GITHUB_API_HEADERS
+            f"https://api.github.com{resource}", headers=GITHUB_API_HEADERS, timeout=10
         )
         response.raise_for_status()
         return response.json()
@@ -387,7 +387,7 @@ class GitBlog:
             repo = Repository(self.clone_dir)
         else:
             repo = pygit2.clone_repository(self.source_repo, self.clone_dir)
-            logging.debug(f"Cloned repo into {self.clone_dir}")
+            logging.debug("Cloned repo into %s", self.clone_dir)
         repo = cast(Repository, repo)
         if fetch:
             repo.remotes["origin"].fetch()
@@ -422,14 +422,14 @@ def sync_dir(src: str, dst: str, symlink: bool = False):
                 os.symlink(f"{src}/{file}", dst_file)
             else:
                 shutil.copyfile(f"{src}/{file}", dst_file)
-            logging.debug(f"Added {dst_file}")
+            logging.debug("Added %s", dst_file)
 
 
 def _write_file(content: str, target_path: str):
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    with open(target_path, "w+") as fd:
-        fd.write(content)
-    logging.debug(f"Wrote {target_path}")
+    with open(target_path, "w+", encoding="utf-8") as file_descriptor:
+        file_descriptor.write(content)
+    logging.debug("Wrote %s", target_path)
 
 
 def _is_uri(repo_link: str):
@@ -446,7 +446,7 @@ def _parse_uri(repo_link: str) -> ParseResult:
 
 
 def _get_commit_dt(commit: Commit):
-    # TODO double check the comuted datetime
-    tz = datetime.timezone(datetime.timedelta(minutes=commit.commit_time_offset))
-    dt = datetime.datetime.fromtimestamp(commit.commit_time, tz=tz)
-    return dt
+    # TODO double check the computed datetime
+    time_zone = datetime.timezone(datetime.timedelta(minutes=commit.commit_time_offset))
+    date_time = datetime.datetime.fromtimestamp(commit.commit_time, tz=time_zone)
+    return date_time

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from enum import StrEnum, auto
+from enum import Enum
 import logging
 from typing import Optional
 from urllib.parse import urlparse
@@ -9,11 +9,11 @@ import typer
 from .lib import GitBlog
 
 
-class LogLevel(StrEnum):
-    DEBUG = auto()
-    INFO = auto()
-    WARNING = auto()
-    ERROR = auto()
+class LogLevel(str, Enum):
+    DEBUG = "debug"
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
 
 
 def main():
@@ -37,10 +37,10 @@ def cli(
     base_url: str = typer.Option(None, envvar="BASE_URL"),
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
-    logging.info(f"Generating blog into '{output_dir}'...")
-    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=fetch) as gb:
+    logging.info("Generating blog into '%s'...", output_dir)
+    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=fetch) as git_blog:
         parsed_url = urlparse(base_url) if base_url is not None else None
-        gb.write_blog(
+        git_blog.write_blog(
             output_dir,
             with_feeds=(not no_feeds),
             with_social=(not no_social),
