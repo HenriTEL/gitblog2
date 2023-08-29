@@ -154,6 +154,7 @@ Low priority:
 
 ## Golden resources
 
+<https://accessiblepalette.com>
 <https://modernfontstacks.com/>  
 <https://anthonyhobday.com/sideprojects/saferules/>  
 <https://lawsofux.com/>  
