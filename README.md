@@ -2,8 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)  
 
-**Git + Markdown = Blog**  
-**Check the [live demo](https://blog.henritel.com)**  
+Check a [live demo](https://blog.henritel.com).  
 
 ## What is this?
 
@@ -25,7 +24,7 @@ While provinding modern features:
 **From zero to a live blog.**
 
 You can see the full setup of a working blog [here](https://github.com/HenriTEL/blog).  
-For this tutorial we assume you'll use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have accounts on those platforms as a prerequisite.  
+For this tutorial we'll assume that you use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have accounts on those platforms as a prerequisite.  
 
 1. Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.  
 Use a `draft/` folder to save posts that are not ready for publication.  
@@ -64,6 +63,8 @@ Non Markdown files and common irrelevant content is ignored by default, e.g. `.g
 pip install gitblog2
 ```
 
+There's also a [container image](https://hub.docker.com/repository/docker/henritel/gitblog2) available on docker hub.
+
 ## Usage
 
 From the command line:
@@ -97,8 +98,8 @@ docker run --rm -v $PWD/www:/www \
 
 ## Customisation
 
-Gitblog2 just produces static file so it should easily integrate with the stack you're familiar with (cron jobs, commit hooks, nginx, apache, you name it.).  
-You can use <https://simplecss.org/demo> as an alternate stylesheet.
+Gitblog2 just produces static file so it should integrate seamlessly integrate with anything (cron jobs, commit hooks, nginx, apache, you name it.).  
+You can use [simplecss](https://simplecss.org/demo) as an alternate stylesheet, support for more stylesheets is planned.
 
 ## Dev quickstart
 
@@ -130,9 +131,13 @@ High priority:
 
 * Move the doc to the wiki with different audiences.
 * Add image in README like <https://github.com/nextcloud/server>
+* mv www public
+* reduce python version compatibility
+* remove changelog
 
 Low priority:
 
+* Add gitlab support
 * Add about page (and link to it from pp) based on user bio and README.md
 * Check draft support (set meta publish_date to first `mv`)
 * Use user's profile handle first and commit author only as a fallback
