@@ -71,6 +71,7 @@ class GitBlog:
     @cached_property
     def articles_metadata(self) -> DefaultDict[str, Dict[str, Any]]:
         _articles_metadata = defaultdict(dict)
+
         for path, commit in self.gen_commits():
             if "commits" in _articles_metadata[path]:
                 _articles_metadata[path]["commits"].append(commit)
@@ -84,19 +85,19 @@ class GitBlog:
         return cast(Commit, self.repo.revparse_single("HEAD"))
 
     @cached_property
-    def repo_uri(self) -> Optional[ParseResult]:
+    def repo_uri(self) -> ParseResult:
         if _is_uri(self.source_repo):
             return _parse_uri(self.source_repo)
         git_config = self.source_repo + "/.git/config"
-        url_prefix = "\turl = "
         if not os.path.exists(git_config):
-            return None
+            return urlparse("")
+        url_prefix = "\turl = "
         # TODO better parse toml and move to a specific function
         with open(git_config, encoding="utf-8") as gh_conf:
             for line in gh_conf:
                 if line.startswith(url_prefix):
                     return _parse_uri(line.lstrip(url_prefix))
-        return None
+        return urlparse("")
 
     @cached_property
     def social_accounts(self) -> Dict[str, str]:
@@ -271,14 +272,13 @@ class GitBlog:
             shutil.copyfile(default_css, css_dst)
         logging.debug("Added static assets.")
 
-    def download_avatar(self, output_dir: str):
+    def download_avatar(self, output_dir: str) -> None:
         avatar_dst = output_dir + "/media/avatar"
         if os.path.exists(avatar_dst):
             # TODO add no-cache option
+            logging.warning("Avatar already downloaded.")
             return
-        if not self.repo_uri:
-            return
-        avatar_url = None
+        avatar_url = ""
         if self.repo_uri.hostname == "github.com":
             avatar_url = self._github_api_get("/user")["avatar_url"]
         elif self.repo_uri.hostname == "codeberg.org":
@@ -287,8 +287,10 @@ class GitBlog:
         if avatar_url:
             os.makedirs(os.path.dirname(avatar_dst), exist_ok=True)
             _, response = request.urlretrieve(avatar_url, avatar_dst)
-            logging.info("Avatar downloaded.")
-            logging.debug("Avatar download response headers:\n%s", response)
+            if response.get("content-type", "").startswith("image/"):
+                logging.info("Avatar downloaded.")
+            else:
+                logging.error("Avatar download response headers:\n%s", response)
 
     def _get_codeberg_avatar_url(self) -> str:
         username = self.repo_uri.path.split("/")[0]
@@ -319,7 +321,7 @@ class GitBlog:
                             self.repo_subdir and path.startswith(self.repo_subdir + "/")
                         ):
                             path = path.removeprefix(self.repo_subdir + "/")
-                            yield path, clean_commit(commit)
+                            yield path, clean_commit(self.last_commit)
 
     def gen_articles_content(
         self, tree: Optional[Tree] = None, path=""
