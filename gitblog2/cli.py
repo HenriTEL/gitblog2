@@ -28,17 +28,17 @@ def cli(
     output_dir: str = typer.Argument("./www", envvar="OUTPUT_DIR"),
     clone_dir: Optional[str] = typer.Option(None, envvar="CLONE_DIR"),
     repo_subdir: str = typer.Option("", envvar="REPO_SUBDIR"),
-    fetch: bool = typer.Option(False, envvar="FETCH"),
     loglevel: LogLevel = typer.Option(
         LogLevel.INFO, "--loglevel", "-l", envvar="LOG_LEVEL"
     ),
     no_feeds: bool = typer.Option(False, envvar="NO_FEED"),
     no_social: bool = typer.Option(False, envvar="NO_SOCIAL"),
+    no_fetch: bool = typer.Option(True, envvar="NO_FETCH"),
     base_url: str = typer.Option(None, envvar="BASE_URL"),
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
     logging.info("Generating blog into '%s'...", output_dir)
-    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=fetch) as git_blog:
+    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=not no_fetch) as git_blog:
         parsed_url = urlparse(base_url) if base_url is not None else None
         git_blog.write_blog(
             output_dir,

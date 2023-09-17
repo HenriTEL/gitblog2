@@ -14,9 +14,10 @@ from functools import cached_property
 from feedgen.feed import FeedGenerator
 import jinja2
 from markdown import markdown
-import pygit2
 from pygit2 import Blob, Commit, Repository, Tree, GIT_OBJ_TREE
 import requests
+
+from gitblog2.repo_utils import git_clone, git_fetch
 
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
@@ -36,7 +37,7 @@ class GitBlog:
         repo_subdir: str = "",
         dirs_blacklist: Tuple[str] = ("draft", "media", "templates", ".github"),
         files_blacklist: Tuple[str] = ("README.md", "LICENSE.md"),
-        fetch: bool = False,
+        fetch: bool = True,
     ):
         self.source_repo = source_repo
         self.repo_subdir = repo_subdir.strip("/")
@@ -382,7 +383,7 @@ class GitBlog:
         response.raise_for_status()
         return response.json()
 
-    def _init_repo(self, fetch: bool = False) -> Repository:
+    def _init_repo(self, fetch=True) -> Repository:
         """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
         Optionally fetch changes after that."""
 
@@ -390,12 +391,10 @@ class GitBlog:
         if cloned_already:
             repo = Repository(self.clone_dir)
         else:
-            repo = pygit2.clone_repository(self.source_repo, self.clone_dir)
-            logging.debug("Cloned repo into %s", self.clone_dir)
+            repo = git_clone(self.source_repo, self.clone_dir)
         repo = cast(Repository, repo)
         if fetch:
-            repo.remotes["origin"].fetch()
-            logging.debug("Fetched last changes.")
+            git_fetch(repo)
         return repo
 
     def _init_templating(self) -> jinja2.Environment:
