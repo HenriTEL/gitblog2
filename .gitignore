@@ -9,6 +9,7 @@ dist/
 
 # Project specific
 www/
+public/
 *.env
 gitblog2/style.css
 redbean.zip

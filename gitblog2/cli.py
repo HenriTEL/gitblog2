@@ -25,7 +25,7 @@ def cli(
         "./",
         envvar="SOURCE_REPO",
     ),
-    output_dir: str = typer.Argument("./www", envvar="OUTPUT_DIR"),
+    output_dir: str = typer.Argument("./public", envvar="OUTPUT_DIR"),
     clone_dir: Optional[str] = typer.Option(None, envvar="CLONE_DIR"),
     repo_subdir: str = typer.Option("", envvar="REPO_SUBDIR"),
     loglevel: LogLevel = typer.Option(

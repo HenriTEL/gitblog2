@@ -1,7 +1,7 @@
 -- special script called by main redbean process at startup
 HidePath('/usr/share/zoneinfo/')
 HidePath('/usr/share/ssl/')
-ProgramDirectory('www')
+ProgramDirectory('public')
 function OnHttpRequest()
   path = GetPath()
   if not RoutePath(path) then

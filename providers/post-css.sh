@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OUTPUT_DIR="${OUTPUT_DIR:-/www}"
+OUTPUT_DIR="${OUTPUT_DIR:-/public}"
 CSS_PATH="${OUTPUT_DIR}/style.css"
 
 purgecss --css "${CSS_PATH}" --content "${OUTPUT_DIR}/**/*.html" --output "${CSS_PATH}"

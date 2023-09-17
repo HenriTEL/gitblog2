@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OUTPUT_DIR="${OUTPUT_DIR:-/www}"
+OUTPUT_DIR="${OUTPUT_DIR:-/public}"
 
 wget --quiet "https://redbean.dev/redbean-tiny-${REDBEAN_VERSION:-2.2}.com" -O redbean.zip
 chmod +x redbean.zip

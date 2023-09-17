@@ -79,7 +79,7 @@ From the library:
 from gitblog2 import GitBlog
 
 source_repo = "https://codeberg.org/HenriTEL/git-blog.git"
-output_dir = "./www"
+output_dir = "./public"
 url_base = "https://example.com"
 with GitBlog(source_repo, repo_subdir="example") as gb:
     gb.write_blog(output_dir, base_url=url_base, with_social=False)
@@ -88,7 +88,7 @@ with GitBlog(source_repo, repo_subdir="example") as gb:
 From the container:
 
 ```bash
-docker run --rm -v $PWD/www:/www \
+docker run --rm -v $PWD/public:/public \
     -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
     -e REPO_SUBDIR=example \
     -e URL_BASE=https://example.com \
@@ -122,7 +122,7 @@ poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.co
 In another terminal, serve the blog:
 
 ```bash
-./redbean.zip -D ./www
+./redbean.zip -D ./public
 ```
 
 ## Roadmap
@@ -131,7 +131,6 @@ High priority:
 
 * Move the doc to the wiki with different audiences.
 * Add image in README like <https://github.com/nextcloud/server>
-* mv www public
 * reduce python version compatibility
 * remove changelog
 

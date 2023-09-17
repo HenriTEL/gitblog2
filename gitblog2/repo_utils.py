@@ -20,7 +20,7 @@ def git_clone(url: str, path: str) -> Repository:
     else:
         # Run a full clone
         repo = clone_repository(url, path)
-    logging.debug("Cloned repo into %s", self.clone_dir)
+    logging.debug("Cloned repo into %s", path)
     return repo
 
 
