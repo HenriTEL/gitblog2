@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-OUTPUT_DIR="${OUTPUT_DIR:-/www}"
+OUTPUT_DIR="${OUTPUT_DIR:-/public}"
 rm -rf "${OUTPUT_DIR}/"*
 echo "Cleaned content under ${OUTPUT_DIR}"
 

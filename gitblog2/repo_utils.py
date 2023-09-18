@@ -2,12 +2,8 @@ import logging
 import shutil
 import subprocess
 
-from pygit2 import RemoteCallbacks, Repository, clone_repository
-
-
-class PartialRemoteCallbacks(RemoteCallbacks):
-    def transfer_progress(self, stats):
-        print(f"{stats.indexed_objects}/{stats.total_objects}")
+from pygit2 import clone_repository
+from pygit2.repository import Repository
 
 
 def git_clone(url: str, path: str) -> Repository:
@@ -16,11 +12,12 @@ def git_clone(url: str, path: str) -> Repository:
         # Clone with a depth of 1
         cmd = ["git", "clone", "--depth", "1", url, path]
         subprocess.run(cmd, check=True)
+        logging.debug("Cloned repo with depth 1 into %s", path)
         repo = Repository(path)
     else:
         # Run a full clone
         repo = clone_repository(url, path)
-    logging.debug("Cloned repo into %s", path)
+        logging.debug("Full cloned repo into %s", path)
     return repo
 
 
@@ -35,4 +32,4 @@ def git_fetch(repo: Repository) -> None:
         logging.info("Fetched commits.")
     else:
         repo.remotes["origin"].fetch()
-        logging.info("Default fetch completed.")
+        logging.info("Fetch all completed.")

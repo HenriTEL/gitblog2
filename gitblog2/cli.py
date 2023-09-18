@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from enum import Enum
 import logging
-from typing import Optional
 from urllib.parse import urlparse
 
 import typer
+from typing_extensions import Annotated
 
 from .lib import GitBlog
 
@@ -21,30 +21,31 @@ def main():
 
 
 def cli(
-    source_repo: str = typer.Argument(
-        "./",
-        envvar="SOURCE_REPO",
-    ),
-    output_dir: str = typer.Argument("./public", envvar="OUTPUT_DIR"),
-    clone_dir: Optional[str] = typer.Option(None, envvar="CLONE_DIR"),
-    repo_subdir: str = typer.Option("", envvar="REPO_SUBDIR"),
-    loglevel: LogLevel = typer.Option(
-        LogLevel.INFO, "--loglevel", "-l", envvar="LOG_LEVEL"
-    ),
-    no_feeds: bool = typer.Option(False, envvar="NO_FEED"),
-    no_social: bool = typer.Option(False, envvar="NO_SOCIAL"),
-    no_fetch: bool = typer.Option(True, envvar="NO_FETCH"),
-    base_url: str = typer.Option(None, envvar="BASE_URL"),
+    source_repo: Annotated[
+        str,
+        typer.Argument(
+            envvar="SOURCE_REPO",
+        ),
+    ] = "./",
+    output_dir: Annotated[str, typer.Argument(envvar="OUTPUT_DIR")] = "./public",
+    clone_dir: Annotated[str, typer.Option(envvar="CLONE_DIR")] = "",
+    repo_subdir: Annotated[str, typer.Option(envvar="REPO_SUBDIR")] = "",
+    loglevel: Annotated[
+        LogLevel, typer.Option("--loglevel", "-l", envvar="LOG_LEVEL")
+    ] = LogLevel.INFO,
+    no_feeds: Annotated[bool, typer.Option(envvar="NO_FEEDS")] = False,
+    no_social: Annotated[bool, typer.Option(envvar="NO_SOCIAL")] = False,
+    no_fetch: Annotated[bool, typer.Option(envvar="NO_FETCH")] = False,
+    base_url: Annotated[str, typer.Option(envvar="BASE_URL")] = "",
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
     logging.info("Generating blog into '%s'...", output_dir)
-    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=not no_fetch) as git_blog:
-        parsed_url = urlparse(base_url) if base_url is not None else None
+    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
         git_blog.write_blog(
             output_dir,
             with_feeds=(not no_feeds),
             with_social=(not no_social),
-            base_url=parsed_url,
+            base_url=urlparse(base_url),
         )
     logging.info("Done.")
 
