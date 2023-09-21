@@ -2,25 +2,27 @@
 <html lang="en">
 
 <head>
+    {% with title=blog_post.title %}
     {% include "head_common.html.j2" %}
+    {% endwith %}
 
-    {% if description -%}
-    <meta name="description" content="{{ description }}">
+    {% if blog_post.description -%}
+    <meta name="description" content="{{ blog_post.description }}">
     {% endif -%}
-    <meta name="author" content="{{ commits[-1].author.name }}">
-    <meta property="article:published_time" content="{{ commits[-1].iso_time }}">
-    {% if commits|length > 1 -%}
-    <meta property="article:modified_time" content="{{ commits[0].iso_time }}">
-    {% endif -%}
+    <meta name="author" content="{{ blog_post.author }}">
+    <meta property="article:published_time" content="{{ blog_post.iso_time }}">
+    <meta property="article:modified_time" content="{{ blog_post.iso_time }}">
 </head>
 
 <body>
     <header>
+        {% with author_name=blog_post.author %}
         {% include "navbar.html.j2" %}
-        <h1>{{ title }}</h1>
+        {% endwith %}
+        <h1>{{ blog_post.title }}</h1>
         <p>
-            {% if description -%}
-            {{ description }}<br />
+            {% if blog_post.description -%}
+            {{ blog_post.description }}<br />
             {%- endif %}
             {% include "article_datetimes.html.j2" %}
         </p>
@@ -28,7 +30,7 @@
     <main>
         {{ main_content }}
     </main>
-    {% with author_name=commits[0].author.name %}
+    {% with author_name=blog_post.author %}
     {% include "footer.html.j2" %}
     {% endwith %}
 </body>

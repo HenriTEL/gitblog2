@@ -10,25 +10,23 @@
 
 <body>
     <header>
-        {% with commits=articles[0].commits %}
+        {% with author_name=blog_posts[0].author %}
         {% include "navbar.html.j2" %}
         {% endwith %}
     </header>
 
     <main>
-        {%- for article in articles %}
+        {%- for blog_post in blog_posts %}
         <article>
-            <h2><a href="/{{ article.relative_path }}">{{ article.title }}</a></h2>
+            <h2><a href="/{{ blog_post.relative_path }}">{{ blog_post.title }}</a></h2>
             <p>
-                {{ article.description }}
+                {{ blog_post.description }}
             </p>
-            {% with commits=article.commits, read_time_minutes=article.read_time_minutes %}
             {% include "article_datetimes.html.j2" %}
-            {% endwith %}
         </article>
         {%- endfor %}
     </main>
-    {% with author_name=articles[0].commits[0].author.name %}
+    {% with author_name=blog_posts[0].author %}
     {% include "footer.html.j2" %}
     {% endwith %}
 </body>

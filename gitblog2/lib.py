@@ -1,12 +1,12 @@
 from base64 import b64encode
 from collections import defaultdict
-import datetime
 import logging
 import os
 import re
 import shutil
 from tempfile import TemporaryDirectory
-from typing import cast, Any, DefaultDict, Dict, Generator, List, Optional, Set, Tuple
+from types import TracebackType
+from typing import Type, cast, Generator, Optional
 from urllib import request
 from urllib.parse import ParseResult, urlparse
 from functools import cached_property
@@ -15,11 +15,13 @@ from feedgen.feed import FeedGenerator
 from feedgen.entry import FeedEntry
 import jinja2
 from markdown import markdown
-from pygit2 import Blob, Commit, Tree, GIT_OBJ_TREE
-from pygit2.repository import Repository
 import requests
+from git.repo import Repo
+from git import Commit, Tree
+from git.types import PathLike
 
-from gitblog2.repo_utils import git_clone, git_fetch
+from gitblog2.blog_posts import BlogPosts
+
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
 MD_LIB_EXTENSION_CONFIGS = {"toc": {"title": " Table of contents"}}
@@ -36,8 +38,8 @@ class GitBlog:
         source_repo: str,
         clone_dir: str = "",
         repo_subdir: str = "",
-        ignore_dirs: List[str] = ["draft", "media", "templates", ".github"],
-        ignore_files: List[str] = ["README.md", "LICENSE.md"],
+        ignore_dirs: list[str] = ["draft", "media", "templates", ".github"],
+        ignore_files: list[str] = ["README.md", "LICENSE.md"],
         fetch: bool = True,
     ):
         self.source_repo = source_repo
@@ -59,46 +61,41 @@ class GitBlog:
         self.pkgdir = os.path.dirname(__file__)
         self.repo = self._init_repo(fetch)
         self.j2env = self._init_templating()
+        commits = self.repo.iter_commits(self.last_commit, paths=self.repo_subdir)
+        self.blog_posts = BlogPosts(
+            commits, self.repo_subdir, self.ignore_dirs, self.ignore_files
+        )
 
-        self.section_to_paths: DefaultDict[str, Set[str]] = defaultdict(set)
+        self.section_to_paths: defaultdict[str, set[str]] = defaultdict(set)
+        self.old_to_new_path: dict[str, str] = {}
 
     @cached_property
-    def sections(self) -> List[str]:
+    def sections(self) -> list[str]:
         _sections = list(self.gen_sections())
         logging.debug("Built sections.")
         return _sections
 
-    @cached_property
-    def articles_metadata(self) -> DefaultDict[str, Dict[str, Any]]:
-        _articles_metadata: defaultdict[str, Dict[str, Any]] = defaultdict(dict)
-
-        for path, commit in self.gen_commits():
-            if "commits" in _articles_metadata[path]:
-                _articles_metadata[path]["commits"].append(commit)
-            else:
-                _articles_metadata[path]["commits"] = [commit]
-        logging.debug("Built articles_metadata.")
-        return _articles_metadata
-
     @property
     def last_commit(self) -> Commit:
-        return cast(Commit, self.repo.revparse_single("HEAD"))
+        return self.repo.head.commit
 
     @cached_property
     def repo_uri(self) -> ParseResult:
         if _is_uri(self.source_repo):
             return _parse_uri(self.source_repo)
-        config_uri = self.repo.config_snapshot["remote.origin.url"]
-        return urlparse(config_uri)
+        logging.info("AAAA" * 10)
+        logging.info(self.repo.config_reader().sections())
+        config_uri = self.repo.config_reader().get_value("remote.origin", "url")
+        return urlparse(str(config_uri))
 
     @cached_property
-    def social_accounts(self) -> Dict[str, str]:
+    def social_accounts(self) -> dict[str, str]:
         _social_accounts = {"syndication": "/atom.xml"}
         if self.repo_uri.hostname == "github.com":
             _social_accounts["github"] = (
                 "https://github.com/" + self.repo_uri.path.split("/")[0]
             )
-            gh_social_accounts: List[Dict[str, str]] = self._github_api_get(
+            gh_social_accounts: list[dict[str, str]] = self._github_api_get(
                 "/user/social_accounts"
             )
             for account in gh_social_accounts:
@@ -108,57 +105,47 @@ class GitBlog:
     def write_blog(
         self,
         output_dir: str,
-        with_feeds: bool = True,
         with_social: bool = True,
         base_url: ParseResult = urlparse(""),
     ):
-        if with_feeds and not base_url.geturl():
+        if with_social and not base_url.geturl():
             raise ValueError(
-                "You need to provide your website base URL in order to generate a social feed."
+                "You need to provide your website base URL in order to generate social feeds."
             )
         if with_social:
             self.download_avatar(output_dir)
 
-        self.write_articles(output_dir, with_social=with_social)
-        self.write_indexes(output_dir, with_feeds, with_social=with_social)
-        if with_feeds:
+        self.write_articles(output_dir, with_social)
+        self.write_indexes(output_dir, with_social)
+        if with_social:
             self.write_syndication_feeds(output_dir, base_url=base_url)
         self.add_static_assets(output_dir)
 
     def write_articles(self, output_dir: str, with_social: bool = True):
         template = self.j2env.get_template("article.html.j2")
         for path, content in self.gen_articles_content():
-            full_page = self.render_article(
-                content, path, template, with_social=with_social
-            )
-            target_path = output_dir + "/" + path.replace(".md", ".html")
+            full_page = self.render_article(content, str(path), template, with_social)
+            target_path = output_dir + "/" + str(path).replace(".md", ".html")
             _write_file(full_page, target_path)
 
-    def write_indexes(
-        self, output_dir: str, with_feeds: bool = True, with_social: bool = True
-    ):
-        template = self.j2env.get_template("index.html.j2")
+    def write_indexes(self, output_dir: str, with_social: bool = True):
         for section in self.sections:
             target_path = f"{output_dir}/{section}/index.html"
             try:
-                full_page = self.render_index(
-                    section, template, with_social=with_social
-                )
+                full_page = self.render_index(section, with_social)
             except Exception as ex:
                 logging.error("Failed to render index for section %s", section)
                 raise ex
             _write_file(full_page, target_path)
 
-        home_page = self.render_index(
-            template=template, with_feeds=with_feeds, with_social=with_social
-        )
+        home_page = self.render_index(with_social=with_social)
         _write_file(home_page, f"{output_dir}/index.html")
 
     def write_syndication_feeds(self, output_dir: str, base_url: ParseResult):
         url_hash = b64encode(base_url.geturl().encode()).decode()
         feed_id = f"ni://{base_url.hostname}/base64;{url_hash}"
-        last_commit_dt = _get_commit_dt(self.last_commit)
-        author = self.last_commit.author.name
+        last_commit_dt = self.last_commit.committed_datetime
+        author = str(self.last_commit.author)
         description = f"The latest news from {author}"
         feed = FeedGenerator()
         feed.id(feed_id)
@@ -170,18 +157,17 @@ class GitBlog:
         feed.updated(last_commit_dt)
         for _, paths in self.section_to_paths.items():
             for path in paths:
-                article = self.articles_metadata[path]
-                last_commit_dt = article["commits"][0]["iso_time"]
-                article_url = f"{base_url.geturl()}/{article['relative_path']}"
+                blog_post = self.blog_posts[path]
+                article_url = base_url.geturl() + "/" + blog_post.relative_path
                 url_hash = b64encode(article_url.encode()).decode()
                 entry_id = f"ni://{base_url.hostname}/base64;{url_hash}"
 
                 feed_entry = FeedEntry()
                 feed_entry.id(entry_id)
-                feed_entry.title(article["title"])
-                feed_entry.summary(article["description"])
+                feed_entry.title(blog_post.title)
+                feed_entry.summary(blog_post.description)
                 feed_entry.link(href=article_url, rel="alternate")
-                feed_entry.updated(last_commit_dt)
+                feed_entry.updated(blog_post.last_update_dt)
                 feed.add_entry(feed_entry)
         feed.atom_file(output_dir + "/atom.xml")
         feed.rss_file(output_dir + "/rss.xml")
@@ -200,10 +186,9 @@ class GitBlog:
             template = self.j2env.get_template("article.html.j2")
         title, description, md_content = self.parse_md(content)
         # TODO fix indexes not beeing rendered when render_article not previously called
-        self.articles_metadata[path]["relative_path"] = path[:-3]
-        self.articles_metadata[path]["title"] = title
-        self.articles_metadata[path]["description"] = description
-        self.articles_metadata[path]["read_time_minutes"] = (
+        self.blog_posts[path].title = title
+        self.blog_posts[path].description = description
+        self.blog_posts[path].read_time_minutes = (
             len(md_content.split(" ")) // 200
         ) or 1
         section = path.split("/")[0]
@@ -214,37 +199,34 @@ class GitBlog:
             extension_configs=MD_LIB_EXTENSION_CONFIGS,
         )
         return template.render(
-            title=title,
-            description=description,
+            blog_post=self.blog_posts[path],
             main_content=html_content,
-            commits=self.articles_metadata[path]["commits"],
             sections=self.sections,
-            read_time_minutes=self.articles_metadata[path]["read_time_minutes"],
             avatar_url="/media/avatar" if with_social else None,
             social_accounts=self.social_accounts if with_social else None,
         )
 
     def render_index(
         self,
-        section: Optional[str] = None,
-        template: Optional[jinja2.Template] = None,
-        with_feeds: bool = False,
-        with_social: bool = False,
+        section: str = "Home",
+        with_social: bool = True,
     ) -> str:
-        if template is None:
-            template = self.j2env.get_template("index.html.j2")
-        if section is None:
+        template = self.j2env.get_template("index.html.j2")
+        if section == "Home":
             # TODO sort by publication date
-            paths = [p for ps in self.section_to_paths.values() for p in ps]
-            section = "Home"
+            section_paths = [p for ps in self.section_to_paths.values() for p in ps]
         else:
-            paths = self.section_to_paths[section]
-        articles = [self.articles_metadata[p] for p in paths]
+            section_paths = self.section_to_paths[section]
+        section_posts = [self.blog_posts[p] for p in section_paths]
+        if section == "Home" and with_social:
+            feeds = {"atom": "/atom.xml", "rss": "/rss.xml"}
+        else:
+            feeds = {}
         return template.render(
             title=section,
-            articles=articles,
+            blog_posts=section_posts,
             sections=self.sections,
-            feeds={"atom": "/atom.xml", "rss": "/rss.xml"} if with_feeds else {},
+            feeds=feeds,
             avatar_url="/media/avatar" if with_social else None,
             social_accounts=self.social_accounts if with_social else None,
         )
@@ -286,70 +268,35 @@ class GitBlog:
             else:
                 logging.error("Avatar download response headers:\n%s", response)
 
-    def gen_commits(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
-        def clean_commit(commit: Commit) -> Dict[str, Any]:
-            commit_dt = _get_commit_dt(commit)
-            # TODO use a proper data class here
-            return {
-                "iso_time": commit_dt.isoformat(),
-                "human_time": commit_dt.strftime("%d %b %Y"),
-                "author": commit.author,
-                "message": commit.message,
-            }
-
-        for commit in self.repo.walk(self.last_commit.id):
-            if commit.parents:
-                prev = commit.parents[0]
-                diff = prev.tree.diff_to_tree(commit.tree)
-                for patch in diff:
-                    path = patch.delta.new_file.path
-                    if path.endswith(".md"):
-                        if not self.repo_subdir or (
-                            self.repo_subdir and path.startswith(self.repo_subdir + "/")
-                        ):
-                            path = path.removeprefix(self.repo_subdir + "/")
-                            yield path, clean_commit(self.last_commit)
-
     def gen_articles_content(
-        self, tree: Optional[Tree] = None, path: str = ""
-    ) -> Generator[Tuple[str, str], None, None]:
+        self, tree: Optional[Tree] = None
+    ) -> Generator[tuple[PathLike, str], None, None]:
         """Traverse repo files an return any (path, content) tuple corresponding to non blacklisted Markdown files.
         The path parameter is recursively constructed as we traverse the tree."""
         if tree is None:
             tree = self.last_commit.tree
+            if self.repo_subdir:
+                tree = cast(Tree, tree[self.repo_subdir])
         for obj in tree:
-            if obj.type == GIT_OBJ_TREE and obj.name not in self.ignore_dirs:
-                obj_relpath = f"{path}{obj.name}/"
-                yield from self.gen_articles_content(cast(Tree, obj), obj_relpath)
-            elif (
-                cast(str, obj.name).endswith(".md")
-                and (not self.repo_subdir or path.startswith(self.repo_subdir + "/"))
-                and obj.name not in self.ignore_files
-            ):
-                obj_relpath = f"{path.removeprefix(self.repo_subdir + '/')}{obj.name}"
-                yield (obj_relpath, cast(Blob, obj).data.decode("utf-8"))
-            elif cast(str, obj.name).endswith(".md"):
-                logging.debug("Skipped %s%s", path, obj.name)
+            if obj.type == "tree" and obj.name not in self.ignore_dirs:
+                yield from self.gen_articles_content(obj)
+            elif obj.type == "blob" and obj.name.endswith(".md"):
+                if obj.name in self.ignore_files:
+                    logging.debug("Skipped %s", obj.path)
+                    continue
+                yield obj.path, cast(bytes, obj.data_stream.read()).decode("utf-8")
 
     def gen_sections(self) -> Generator[str, None, None]:
         """Yield all sections found for this blog"""
-        tree = self.last_commit.tree
-        # Move to the self.repo_subdir location
+        blog_root = self.last_commit.tree
         if self.repo_subdir:
-            for to_match in self.repo_subdir.split("/"):
-                obj = None
-                for obj in tree:
-                    if obj.type == GIT_OBJ_TREE and obj.name == to_match:
-                        tree = cast(Tree, obj)
-                        break
-                if obj is None or obj.name != to_match:
-                    return
+            blog_root = cast(Tree, blog_root[self.repo_subdir])
         # Enumerate all valid toplevel dirs
-        for obj in tree:
-            if obj.type == GIT_OBJ_TREE and obj.name not in self.ignore_dirs:
-                yield cast(str, obj.name)
+        for tree in blog_root.trees:
+            if tree.name not in self.ignore_dirs:
+                yield tree.name
 
-    def parse_md(self, md_content: str) -> Tuple[str, str, str]:
+    def parse_md(self, md_content: str) -> tuple[str, str, str]:
         """Return title, description and main_content of the article
         (without the title ans description).
         """
@@ -369,17 +316,33 @@ class GitBlog:
         response.raise_for_status()
         return response.json()
 
-    def _init_repo(self, fetch: bool = True) -> Repository:
+    def _init_repo(self, fetch: bool = True) -> Repo:
         """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
         Optionally fetch changes after that."""
 
         cloned_already = os.path.exists(self.clone_dir + "/.git/")
         if cloned_already:
-            repo = Repository(self.clone_dir)
+            repo = Repo(self.clone_dir)
         else:
-            repo = git_clone(self.source_repo, self.clone_dir)
+            repo = Repo.clone_from(
+                self.source_repo,
+                self.clone_dir,
+                multi_options=["--depth 1", "--no-checkout"],
+            )
+            logging.debug("Cloned repo with depth 1 into %s", self.clone_dir)
         if fetch:
-            git_fetch(repo)
+            # TODO check shallow
+            repo.remotes.origin.fetch(
+                refspec=None,
+                progress=None,
+                verbose=True,
+                kill_after_timeout=None,
+                allow_unsafe_protocols=False,
+                allow_unsafe_options=False,
+                filter="blob:none",
+                no_tags=True,
+                unshallow=True,
+            )
         return repo
 
     def _init_templating(self) -> jinja2.Environment:
@@ -396,7 +359,12 @@ class GitBlog:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exception_type: Optional[Type[BaseException]],
+        exception: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ):
         self.workdir.cleanup()
 
 
@@ -431,10 +399,3 @@ def _parse_uri(repo_link: str) -> ParseResult:
     return ParseResult(
         scheme="ssh", netloc=netloc, path=path, params="", query="", fragment=""
     )
-
-
-def _get_commit_dt(commit: Commit):
-    # TODO double check the computed datetime
-    time_zone = datetime.timezone(datetime.timedelta(minutes=commit.commit_time_offset))
-    date_time = datetime.datetime.fromtimestamp(commit.commit_time, tz=time_zone)
-    return date_time

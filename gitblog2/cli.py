@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from enum import Enum
 import logging
+import os
 from urllib.parse import urlparse
 
 import typer
@@ -33,17 +34,25 @@ def cli(
     loglevel: Annotated[
         LogLevel, typer.Option("--loglevel", "-l", envvar="LOG_LEVEL")
     ] = LogLevel.INFO,
-    no_feeds: Annotated[bool, typer.Option(envvar="NO_FEEDS")] = False,
+    force: Annotated[bool, typer.Option("-f")] = False,
     no_social: Annotated[bool, typer.Option(envvar="NO_SOCIAL")] = False,
     no_fetch: Annotated[bool, typer.Option(envvar="NO_FETCH")] = False,
     base_url: Annotated[str, typer.Option(envvar="BASE_URL")] = "",
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(message)s")
+    if os.path.exists(output_dir):
+        with os.scandir(output_dir) as it:
+            if any(it):
+                if not force:
+                    raise FileExistsError(
+                        f"The output directory '{output_dir}' is not empty, use --force to overwrite."
+                    )
+                logging.warning("WARNING: The output directory is not empty.")
+
     logging.info("Generating blog into '%s'...", output_dir)
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
         git_blog.write_blog(
             output_dir,
-            with_feeds=(not no_feeds),
             with_social=(not no_social),
             base_url=urlparse(base_url),
         )
