@@ -91,7 +91,7 @@ From the container:
 docker run --rm -v $PWD/public:/public \
     -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
     -e REPO_SUBDIR=example \
-    -e URL_BASE=https://example.com \
+    -e BASE_URL=https://example.com \
     -e NO_SOCIAL=true \
     henritel/gitblog2
 ```

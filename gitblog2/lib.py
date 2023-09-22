@@ -191,7 +191,7 @@ class GitBlog:
         self.blog_posts[path].read_time_minutes = (
             len(md_content.split(" ")) // 200
         ) or 1
-        section = path.split("/")[0]
+        section = path.removeprefix(self.repo_subdir).lstrip("/").split("/")[0]
         self.section_to_paths[section].add(path)
         html_content = markdown(
             md_content,
