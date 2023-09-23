@@ -83,9 +83,11 @@ class GitBlog:
     def repo_uri(self) -> ParseResult:
         if _is_uri(self.source_repo):
             return _parse_uri(self.source_repo)
-        logging.info("AAAA" * 10)
-        logging.info(self.repo.config_reader().sections())
-        config_uri = self.repo.config_reader().get_value("remote.origin", "url")
+        git_config = self.repo.config_reader()
+        if (section := 'remote "origin"') in git_config:
+            config_uri = self.repo.config_reader().get_value(section, "url", default="")
+        else:
+            config_uri = ""
         return urlparse(str(config_uri))
 
     @cached_property
