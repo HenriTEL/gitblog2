@@ -254,7 +254,6 @@ class GitBlog:
     def download_avatar(self, output_dir: str) -> None:
         avatar_dst = output_dir + "/media/avatar"
         if os.path.exists(avatar_dst):
-            # TODO add no-cache option
             logging.warning("Avatar already downloaded.")
             return
         avatar_url = ""
