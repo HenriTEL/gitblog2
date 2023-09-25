@@ -83,12 +83,11 @@ class GitBlog:
     def repo_uri(self) -> ParseResult:
         if _is_uri(self.source_repo):
             return _parse_uri(self.source_repo)
-        git_config = self.repo.config_reader()
-        if (section := 'remote "origin"') in git_config:
-            config_uri = self.repo.config_reader().get_value(section, "url", default="")
-        else:
-            config_uri = ""
-        return urlparse(str(config_uri))
+        with self.repo.config_reader() as config_reader:
+            uri = config_reader.get('remote "origin"', "url", fallback="")
+        if not uri:
+            logging.warning("Remote origin url not found in config.")
+        return urlparse(str(uri))
 
     @cached_property
     def social_accounts(self) -> dict[str, str]:
@@ -266,7 +265,7 @@ class GitBlog:
             os.makedirs(os.path.dirname(avatar_dst), exist_ok=True)
             _, response = request.urlretrieve(avatar_url, avatar_dst)
             if response.get("content-type", "").startswith("image/"):
-                logging.info("Avatar downloaded.")
+                print("Avatar downloaded.")
             else:
                 logging.error("Avatar download response headers:\n%s", response)
 

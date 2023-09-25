@@ -39,7 +39,7 @@ def cli(
     no_fetch: Annotated[bool, typer.Option(envvar="NO_FETCH")] = False,
     base_url: Annotated[str, typer.Option(envvar="BASE_URL")] = "",
 ):  # TODO add arguments descriptions
-    logging.basicConfig(level=loglevel.upper(), format="%(message)s")
+    logging.basicConfig(level=loglevel.upper(), format="%(levelname)s: %(message)s")
     if os.path.exists(output_dir):
         with os.scandir(output_dir) as it:
             if any(it):
@@ -47,16 +47,16 @@ def cli(
                     raise FileExistsError(
                         f"The output directory '{output_dir}' is not empty, use --force to overwrite."
                     )
-                logging.warning("WARNING: The output directory is not empty.")
+                logging.warning("The output directory is not empty.")
 
-    logging.info("Generating blog into '%s'...", output_dir)
+    print(f"Generating blog into '{output_dir}'...")
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
         git_blog.write_blog(
             output_dir,
             with_social=(not no_social),
             base_url=urlparse(base_url),
         )
-    logging.info("Done.")
+    print("Done.")
 
 
 if __name__ == "__main__":
