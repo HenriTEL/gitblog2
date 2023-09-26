@@ -1,0 +1,7 @@
+site_name: GitBlog2
+
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: orange
