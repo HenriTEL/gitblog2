@@ -53,20 +53,21 @@ header>:not(nav) {
   margin-right: auto;
 }
 
-header nav {
+nav {
   padding: 0.5rem 0 0.5rem 0;
   margin-bottom: 30px;
 }
 
-header nav ul,
-header nav ol {
+nav ul,
+nav ol {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  list-style-type: none;
-  margin: 0;
+  flex-wrap: wrap;
+  margin: 0 auto;
   padding: 0;
+  max-width: 40rem;
 }
 
 body>main {

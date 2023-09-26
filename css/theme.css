@@ -42,17 +42,23 @@ body {
 }
 
 body>header img {
-	border-radius: 50%;
+	border-radius: 15%;
 }
 
 /* body>main {
 	border-top: 1px solid var(--background-1);
 } */
 
-header nav {
+nav {
 	color: var(--primary-color-minor);
 	font-family: var(--title-font);
-	box-shadow: 0 5px 5px -6px var(--text-main);
+	border-bottom: 1px solid var(--background-1);
+}
+
+
+nav ol,
+nav ul {
+	list-style-type: none;
 }
 
 aside {

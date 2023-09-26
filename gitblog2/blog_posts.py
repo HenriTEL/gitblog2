@@ -15,11 +15,10 @@ class BlogPost:
     relative_path: str
     title: str = ""
     description: str = ""
-    read_time_minutes: int = 1
 
     @property
     def human_time(self):
-        return self.last_update_dt.strftime("%d %b %Y")
+        return self.last_update_dt.strftime("%b %d, %Y")
 
 
 class BlogPosts:
@@ -37,13 +36,13 @@ class BlogPosts:
     def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: str):
         self.path_to_blog_post: dict[str, BlogPost] = {}
         latest_commit = next(commits)
-        root = latest_commit.tree
+        last_commit_date = latest_commit.committed_datetime
         path_to_hash: dict[str, str] = {}
-        for path, hash in self._gen_path_and_hashes(root):
+        for path, hash in self._gen_path_and_hashes(latest_commit.tree):
             path_to_hash[path] = hash
             self.path_to_blog_post[path] = BlogPost(
-                latest_commit.committed_datetime,
-                latest_commit.committed_datetime,
+                last_commit_date,
+                last_commit_date,
                 str(latest_commit.author),
                 path[:-3].removeprefix(repo_subdir),
             )
@@ -52,10 +51,12 @@ class BlogPosts:
         for commit in commits:
             if not path_to_hash:
                 break
-            root = commit.tree
-            changed_paths, path_to_hash = fast_diff(root, path_to_hash)
+            changed_paths, path_to_hash = fast_diff(commit.tree, path_to_hash)
             for path in changed_paths:
-                self.path_to_blog_post[path].creation_dt = commit.committed_datetime
+                blog_post = self.path_to_blog_post[path]
+                if blog_post.last_update_dt == last_commit_date:
+                    blog_post.last_update_dt = commit.committed_datetime
+                blog_post.creation_dt = commit.committed_datetime
 
     def _gen_path_and_hashes(
         self, tree: Tree
@@ -67,7 +68,7 @@ class BlogPosts:
                 if obj.name in self.ignore_files:
                     logging.debug("Skipped %s", obj.path)
                     continue
-            yield str(obj.path), obj.hexsha
+                yield str(obj.path), obj.hexsha
 
     def __getitem__(self, path: str) -> BlogPost:
         return self.path_to_blog_post[path]
