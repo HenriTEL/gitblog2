@@ -1,0 +1,604 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
+    
+    
+      
+        <title>GitBlog2</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.d451bc0e.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.a5377069.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="indigo">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#gitblog2" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="GitBlog2" class="md-header__button md-logo" aria-label="GitBlog2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GitBlog2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+               Gitblog2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="GitBlog2" class="md-nav__button md-logo" aria-label="GitBlog2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    GitBlog2
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+     Gitblog2
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+     Gitblog2
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-this" class="md-nav__link">
+    What is this?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customisation" class="md-nav__link">
+    Customisation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dev-quickstart" class="md-nav__link">
+    Dev quickstart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roadmap" class="md-nav__link">
+    Roadmap
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#golden-resources" class="md-nav__link">
+    Golden resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classless-stylesheets-candidates" class="md-nav__link">
+    Classless stylesheets candidates
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-this" class="md-nav__link">
+    What is this?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customisation" class="md-nav__link">
+    Customisation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dev-quickstart" class="md-nav__link">
+    Dev quickstart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roadmap" class="md-nav__link">
+    Roadmap
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#golden-resources" class="md-nav__link">
+    Golden resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classless-stylesheets-candidates" class="md-nav__link">
+    Classless stylesheets candidates
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="gitblog2"><img alt="Gitblog2 Logo" src="https://blog.henritel.com/media/favicon.svg" title="title" /> Gitblog2</h1>
+<p><a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>  </p>
+<p>Check a <a href="https://blog.henritel.com">live demo</a>.  </p>
+<h2 id="what-is-this">What is this?</h2>
+<p>A blog generator that keeps things simple:  </p>
+<ul>
+<li>🏄 <strong>Straightforward</strong> - Just write Markdown.</li>
+<li>⚡ <strong>Minimal footprint</strong> - about 15KB uncompressed.</li>
+<li>🌐 <strong>Universal</strong> - No JavaScript, no divs, no css classes, just semantic html.  </li>
+<li>🛠 <strong>Familiar tooling</strong> - Git, Markdown, Jinja2.</li>
+</ul>
+<p>While provinding modern features:</p>
+<ul>
+<li><strong>Modern look</strong> - with support for other stylesheets</li>
+<li><strong>RSS and Atom feeds</strong></li>
+<li><strong>Avatar and social accounts</strong> - based on your Github profile</li>
+</ul>
+<h2 id="getting-started">Getting Started</h2>
+<p><strong>From zero to a live blog.</strong></p>
+<p>You can see the full setup of a working blog <a href="https://github.com/HenriTEL/blog">here</a>.<br />
+For this tutorial we'll assume that you use <strong>Github</strong> to host your repo and <strong>Cloudflare Pages</strong> to host your blog. You need to have accounts on those platforms as a prerequisite.  </p>
+<ol>
+<li>
+<p>Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.<br />
+Use a <code>draft/</code> folder to save posts that are not ready for publication.<br />
+Non Markdown files and common irrelevant content is ignored by default, e.g. <code>.github/</code>, <code>README.md</code>, <code>LICENSE.md</code>.</p>
+</li>
+<li>
+<p>Add a <code>.github/workflows/publish.yaml</code> file to your repo with the following content:</p>
+<p><code>yaml
+name: Publish Blog
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker://henritel/gitblog2
+        with:
+          args: post-css cloudflare-pages
+        env:
+          SOURCE_REPO: https://github.com/${{ github.repository }}
+          BASE_URL: &lt;YOUR_BLOG_URL&gt;
+          GITHUB_TOKEN: ${{ secrets.RO_GITHUB_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}</code></p>
+<p>Set <code>BASE_URL</code> with your blog's base url.<br />
+This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.<br />
+It assumes your cloudflare project is named <code>blog</code> but if that's not the case you can add an <code>CLOUDFLARE_PROJECT</code> env to the workflow with the correponding name.
+3. In your repo's settings, go under <code>secrets/actions</code> to set the <code>CLOUDFLARE_ACCOUNT_ID</code> and <code>CLOUDFLARE_API_TOKEN</code> secrets based on your <a href="https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key">Cloudflare API keys</a>. Also setup a <code>RO_GITHUB_TOKEN</code> if you want to add social capabilities like a profile pic and links to social accounts. Go to <a href="https://github.com/settings/tokens/">https://github.com/settings/tokens/</a> to generate a token with <code>read:user</code> access rights.</p>
+</li>
+</ol>
+<h2 id="installation">Installation</h2>
+<pre><code class="language-bash">pip install gitblog2
+</code></pre>
+<p>There's also a <a href="https://hub.docker.com/repository/docker/henritel/gitblog2">container image</a> available on docker hub.</p>
+<h2 id="usage">Usage</h2>
+<p>From the command line:</p>
+<pre><code class="language-bash">gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com --no-social
+</code></pre>
+<p>From the library:</p>
+<pre><code class="language-python">from gitblog2 import GitBlog
+
+source_repo = &quot;https://codeberg.org/HenriTEL/git-blog.git&quot;
+output_dir = &quot;./public&quot;
+url_base = &quot;https://example.com&quot;
+with GitBlog(source_repo, repo_subdir=&quot;example&quot;) as gb:
+    gb.write_blog(output_dir, base_url=url_base, with_social=False)
+</code></pre>
+<p>From the container:</p>
+<pre><code class="language-bash">docker run --rm -v $PWD/public:/public \
+    -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
+    -e REPO_SUBDIR=example \
+    -e BASE_URL=https://example.com \
+    -e NO_SOCIAL=true \
+    henritel/gitblog2
+</code></pre>
+<h2 id="customisation">Customisation</h2>
+<p>Gitblog2 just produces static file so it should integrate seamlessly integrate with anything (cron jobs, commit hooks, nginx, apache, you name it.).<br />
+You can use <a href="https://simplecss.org/demo">simplecss</a> as an alternate stylesheet, support for more stylesheets is planned.</p>
+<h2 id="dev-quickstart">Dev quickstart</h2>
+<p>Make sure to have <a href="https://python-poetry.org/">poetry</a> installed, then<br />
+Setup your local web server:</p>
+<pre><code class="language-bash">poetry install
+wget &quot;https://redbean.dev/redbean-tiny-2.2.com&quot; -O redbean.zip
+zip redbean.zip -j providers/assets/.init.lua
+chmod +x redbean.zip
+</code></pre>
+<p>In one terminal, update the blog as needed:</p>
+<pre><code class="language-bash">poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com --no-social
+</code></pre>
+<p>In another terminal, serve the blog:</p>
+<pre><code class="language-bash">./redbean.zip -D ./public
+</code></pre>
+<h2 id="roadmap">Roadmap</h2>
+<p>High priority:</p>
+<ul>
+<li>Move the doc to the wiki with different audiences.</li>
+<li>Add image in README like <a href="https://github.com/nextcloud/server">https://github.com/nextcloud/server</a></li>
+<li>reduce python version compatibility</li>
+<li>remove changelog</li>
+</ul>
+<p>Low priority:</p>
+<ul>
+<li>Add gitlab support</li>
+<li>Add about page (and link to it from pp) based on user bio and README.md</li>
+<li>Check draft support (set meta publish_date to first <code>mv</code>)</li>
+<li>Use user's profile handle first and commit author only as a fallback</li>
+<li>E2E tests</li>
+<li>Deal with TODOs or make issues for newcomers</li>
+<li>Improve score on <a href="https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop">https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop</a></li>
+<li>Add doc for customisation</li>
+<li>Change template + accessible variables</li>
+<li>Add icons</li>
+<li>Change main color theme</li>
+<li>Make a script to remove unused icons</li>
+<li>Make a better TOC extension (remove div and classes)</li>
+<li>Make markdown renderer set loading="lazy" on img tags</li>
+<li>Unit tests, pagespeed test</li>
+<li>Linting (pylint + pyre?)</li>
+<li>Refactor lib.py into multiple files</li>
+<li>Add contributing section</li>
+<li>Remove div and classes from footnotes</li>
+</ul>
+<h2 id="golden-resources">Golden resources</h2>
+<p><a href="https://accessiblepalette.com">https://accessiblepalette.com</a>
+<a href="https://modernfontstacks.com/">https://modernfontstacks.com/</a><br />
+<a href="https://anthonyhobday.com/sideprojects/saferules/">https://anthonyhobday.com/sideprojects/saferules/</a><br />
+<a href="https://lawsofux.com/">https://lawsofux.com/</a><br />
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTML">https://developer.mozilla.org/en-US/docs/Web/HTML</a><br />
+<a href="https://developer.mozilla.org/en-US/docs/Web/CSS">https://developer.mozilla.org/en-US/docs/Web/CSS</a><br />
+<a href="https://developer.mozilla.org/en-US/docs/Web/SVG">https://developer.mozilla.org/en-US/docs/Web/SVG</a><br />
+<a href="https://icons.getbootstrap.com/">https://icons.getbootstrap.com/</a>  </p>
+<h2 id="classless-stylesheets-candidates">Classless stylesheets candidates</h2>
+<p><a href="https://github.com/kevquirk/simple.css/blob/main/simple.css">https://github.com/kevquirk/simple.css/blob/main/simple.css</a>  </p>
+<p><a href="https://github.com/yegor256/tacit">https://github.com/yegor256/tacit</a><br />
+<a href="https://github.com/kognise/water.css">https://github.com/kognise/water.css</a><br />
+<a href="https://github.com/xz/new.css">https://github.com/xz/new.css</a><br />
+<a href="https://github.com/edwardtufte/tufte-css">https://github.com/edwardtufte/tufte-css</a><br />
+<a href="https://github.com/programble/writ">https://github.com/programble/writ</a><br />
+<a href="https://github.com/oxalorg/sakura">https://github.com/oxalorg/sakura</a><br />
+<a href="https://github.com/susam/spcss">https://github.com/susam/spcss</a>  </p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.726fbb30.min.js"></script>
+      
+    
+  </body>
+</html>
