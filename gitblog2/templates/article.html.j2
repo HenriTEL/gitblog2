@@ -24,7 +24,9 @@
             {% if blog_post.description -%}
             {{ blog_post.description }}<br />
             {%- endif %}
-            {% include "article_datetimes.html.j2" %}
+            <small>
+                Last updated on {{ blog_post.human_time }}
+            </small>
         </p>
     </header>
     <main>

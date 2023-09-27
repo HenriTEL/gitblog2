@@ -22,7 +22,9 @@
             <p>
                 {{ blog_post.description }}
             </p>
-            {% include "article_datetimes.html.j2" %}
+            <small>
+                Last updated on {{ blog_post.human_time }}
+            </small>
         </article>
         {%- endfor %}
     </main>
