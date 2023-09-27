@@ -240,8 +240,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-this" class="md-nav__link">
-    What is this?
+  <a href="#features" class="md-nav__link">
+    Features
   </a>
   
 </li>
@@ -337,8 +337,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-this" class="md-nav__link">
-    What is this?
+  <a href="#features" class="md-nav__link">
+    Features
   </a>
   
 </li>
@@ -415,21 +415,19 @@
 
 
 <h1 id="gitblog2"><img alt="Gitblog2 Logo" src="https://blog.henritel.com/media/favicon.svg" title="title" /> Gitblog2</h1>
-<p><a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>  </p>
-<p>Check a <a href="https://blog.henritel.com">live demo</a>.  </p>
-<h2 id="what-is-this">What is this?</h2>
-<p>A blog generator that keeps things simple:  </p>
+<blockquote>
+<p>Git + Markdown = Blog</p>
+</blockquote>
+<p><img alt="Package version" src="https://img.shields.io/pypi/v/gitblog2?color=%2334D058&amp;label=pypi%20package" /></p>
+<p>Gitblog2 is a simple, fast and beautiful blog generator.
+Blog posts are writen in Markdown and that's it. One of the main goals is to keep the learning curve as low as possible.</p>
+<p>Check a <a href="https://blog.henritel.com">live example</a>.  </p>
+<h2 id="features">Features</h2>
 <ul>
-<li>🏄 <strong>Straightforward</strong> - Just write Markdown.</li>
-<li>⚡ <strong>Minimal footprint</strong> - about 15KB uncompressed.</li>
-<li>🌐 <strong>Universal</strong> - No JavaScript, no divs, no css classes, just semantic html.  </li>
-<li>🛠 <strong>Familiar tooling</strong> - Git, Markdown, Jinja2.</li>
-</ul>
-<p>While provinding modern features:</p>
-<ul>
-<li><strong>Modern look</strong> - with support for other stylesheets</li>
-<li><strong>RSS and Atom feeds</strong></li>
-<li><strong>Avatar and social accounts</strong> - based on your Github profile</li>
+<li>Build static HTML files from Markdown files. No JavaScript, no divs, no css classes.</li>
+<li>About 10kB compressed, stylesheet and icons included.</li>
+<li>Sync your profile picture and social accounts based on your Github profile.</li>
+<li>RSS and Atom feeds.</li>
 </ul>
 <h2 id="getting-started">Getting Started</h2>
 <p><strong>From zero to a live blog.</strong></p>
@@ -514,14 +512,11 @@ chmod +x redbean.zip
 <ul>
 <li>Move the doc to the wiki with different audiences.</li>
 <li>Add image in README like <a href="https://github.com/nextcloud/server">https://github.com/nextcloud/server</a></li>
-<li>reduce python version compatibility</li>
-<li>remove changelog</li>
 </ul>
 <p>Low priority:</p>
 <ul>
 <li>Add gitlab support</li>
 <li>Add about page (and link to it from pp) based on user bio and README.md</li>
-<li>Check draft support (set meta publish_date to first <code>mv</code>)</li>
 <li>Use user's profile handle first and commit author only as a fallback</li>
 <li>E2E tests</li>
 <li>Deal with TODOs or make issues for newcomers</li>
