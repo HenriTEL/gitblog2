@@ -132,6 +132,7 @@ High priority:
 
 Low priority:
 
+* If avatar already present, don't attempt to download it and include it in the blog.
 * Add gitlab support
 * Add about page (and link to it from pp) based on user bio and README.md
 * Use user's profile handle first and commit author only as a fallback
