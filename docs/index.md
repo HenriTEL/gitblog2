@@ -1,23 +1,21 @@
 # ![Gitblog2 Logo](https://blog.henritel.com/media/favicon.svg "title") Gitblog2
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)  
+> Git + Markdown = Blog
 
-Check a [live demo](https://blog.henritel.com).  
+![Package version](
+https://img.shields.io/pypi/v/gitblog2?color=%2334D058&label=pypi%20package)
 
-## What is this?
+Gitblog2 is a simple, fast and beautiful blog generator.
+Blog posts are writen in Markdown and that's it. One of the main goals is to keep the learning curve as low as possible.
 
-A blog generator that keeps things simple:  
+Check a [live example](https://blog.henritel.com).  
 
-* 🏄 **Straightforward** - Just write Markdown.
-* ⚡ **Minimal footprint** - about 15KB uncompressed.
-* 🌐 **Universal** - No JavaScript, no divs, no css classes, just semantic html.  
-* 🛠 **Familiar tooling** - Git, Markdown, Jinja2.
+## Features
 
-While provinding modern features:
-
-* **Modern look** - with support for other stylesheets
-* **RSS and Atom feeds**
-* **Avatar and social accounts** - based on your Github profile
+* Build static HTML files from Markdown files. No JavaScript, no divs, no css classes.
+* About 10kB compressed, stylesheet and icons included.
+* Sync your profile picture and social accounts based on your Github profile.
+* RSS and Atom feeds.
 
 ## Getting Started
 
@@ -131,14 +129,11 @@ High priority:
 
 * Move the doc to the wiki with different audiences.
 * Add image in README like <https://github.com/nextcloud/server>
-* reduce python version compatibility
-* remove changelog
 
 Low priority:
 
 * Add gitlab support
 * Add about page (and link to it from pp) based on user bio and README.md
-* Check draft support (set meta publish_date to first `mv`)
 * Use user's profile handle first and commit author only as a fallback
 * E2E tests
 * Deal with TODOs or make issues for newcomers
