@@ -247,13 +247,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -263,20 +256,6 @@
         <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     Usage
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#customisation" class="md-nav__link">
-    Customisation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dev-quickstart" class="md-nav__link">
-    Dev quickstart
   </a>
   
 </li>
@@ -344,13 +323,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -360,20 +332,6 @@
         <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     Usage
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#customisation" class="md-nav__link">
-    Customisation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dev-quickstart" class="md-nav__link">
-    Dev quickstart
   </a>
   
 </li>
@@ -419,52 +377,15 @@
 <p>Git + Markdown = Blog</p>
 </blockquote>
 <p><img alt="Package version" src="https://img.shields.io/pypi/v/gitblog2?color=%2334D058&amp;label=pypi%20package" /></p>
-<p>Gitblog2 is a simple, fast and beautiful blog generator.
-Blog posts are writen in Markdown and that's it. One of the main goals is to keep the learning curve as low as possible.</p>
-<p>Check a <a href="https://blog.henritel.com">live example</a>.  </p>
+<p>Gitblog2 is a blog generator focused on speed and simplicity.
+Blog posts are written in Markdown and that's it. Here is a <a href="https://blog.henritel.com">live example</a> solely based on <a href="https://github.com/HenriTEL/blog">this repository</a>. See? It's just Markdown with a bunch or images.   </p>
 <h2 id="features">Features</h2>
 <ul>
 <li>Build static HTML files from Markdown files. No JavaScript, no divs, no css classes.</li>
-<li>About 10kB compressed, stylesheet and icons included.</li>
-<li>Sync your profile picture and social accounts based on your Github profile.</li>
+<li>Low footprint (about 10kB compressed).</li>
+<li>Profile picture and social accounts included based on your Github profile.</li>
 <li>RSS and Atom feeds.</li>
 </ul>
-<h2 id="getting-started">Getting Started</h2>
-<p><strong>From zero to a live blog.</strong></p>
-<p>You can see the full setup of a working blog <a href="https://github.com/HenriTEL/blog">here</a>.<br />
-For this tutorial we'll assume that you use <strong>Github</strong> to host your repo and <strong>Cloudflare Pages</strong> to host your blog. You need to have accounts on those platforms as a prerequisite.  </p>
-<ol>
-<li>
-<p>Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.<br />
-Use a <code>draft/</code> folder to save posts that are not ready for publication.<br />
-Non Markdown files and common irrelevant content is ignored by default, e.g. <code>.github/</code>, <code>README.md</code>, <code>LICENSE.md</code>.</p>
-</li>
-<li>
-<p>Add a <code>.github/workflows/publish.yaml</code> file to your repo with the following content:</p>
-<p><code>yaml
-name: Publish Blog
-on:
-  push:
-    branches: [ main ]
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker://henritel/gitblog2
-        with:
-          args: post-css cloudflare-pages
-        env:
-          SOURCE_REPO: https://github.com/${{ github.repository }}
-          BASE_URL: &lt;YOUR_BLOG_URL&gt;
-          GITHUB_TOKEN: ${{ secrets.RO_GITHUB_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}</code></p>
-<p>Set <code>BASE_URL</code> with your blog's base url.<br />
-This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.<br />
-It assumes your cloudflare project is named <code>blog</code> but if that's not the case you can add an <code>CLOUDFLARE_PROJECT</code> env to the workflow with the correponding name.
-3. In your repo's settings, go under <code>secrets/actions</code> to set the <code>CLOUDFLARE_ACCOUNT_ID</code> and <code>CLOUDFLARE_API_TOKEN</code> secrets based on your <a href="https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key">Cloudflare API keys</a>. Also setup a <code>RO_GITHUB_TOKEN</code> if you want to add social capabilities like a profile pic and links to social accounts. Go to <a href="https://github.com/settings/tokens/">https://github.com/settings/tokens/</a> to generate a token with <code>read:user</code> access rights.</p>
-</li>
-</ol>
 <h2 id="installation">Installation</h2>
 <pre><code class="language-bash">pip install gitblog2
 </code></pre>
@@ -489,23 +410,6 @@ with GitBlog(source_repo, repo_subdir=&quot;example&quot;) as gb:
     -e BASE_URL=https://example.com \
     -e NO_SOCIAL=true \
     henritel/gitblog2
-</code></pre>
-<h2 id="customisation">Customisation</h2>
-<p>Gitblog2 just produces static file so it should integrate seamlessly integrate with anything (cron jobs, commit hooks, nginx, apache, you name it.).<br />
-You can use <a href="https://simplecss.org/demo">simplecss</a> as an alternate stylesheet, support for more stylesheets is planned.</p>
-<h2 id="dev-quickstart">Dev quickstart</h2>
-<p>Make sure to have <a href="https://python-poetry.org/">poetry</a> installed, then<br />
-Setup your local web server:</p>
-<pre><code class="language-bash">poetry install
-wget &quot;https://redbean.dev/redbean-tiny-2.2.com&quot; -O redbean.zip
-zip redbean.zip -j providers/assets/.init.lua
-chmod +x redbean.zip
-</code></pre>
-<p>In one terminal, update the blog as needed:</p>
-<pre><code class="language-bash">poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com --no-social
-</code></pre>
-<p>In another terminal, serve the blog:</p>
-<pre><code class="language-bash">./redbean.zip -D ./public
 </code></pre>
 <h2 id="roadmap">Roadmap</h2>
 <p>High priority:</p>
