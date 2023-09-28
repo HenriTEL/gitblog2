@@ -10,8 +10,10 @@
       
       
       
+        <link rel="next" href="creating-your-blog/">
       
-      <link rel="icon" href="assets/images/favicon.png">
+      
+      <link rel="icon" href="images/favicon.svg">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
     
     
@@ -42,6 +44,8 @@
       
     
     
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -57,7 +61,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
   
     
     
@@ -85,8 +89,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="GitBlog2" class="md-header__button md-logo" aria-label="GitBlog2" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="images/favicon-dark.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -179,8 +182,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="GitBlog2" class="md-nav__button md-logo" aria-label="GitBlog2" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="images/favicon-dark.svg" alt="logo">
 
     </a>
     GitBlog2
@@ -289,6 +291,63 @@
   
 
     
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="creating-your-blog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating your blog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development-quickstart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development quickstart
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="publishing-your-blob/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Publishing your blog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -387,30 +446,30 @@ Blog posts are written in Markdown and that's it. Here is a <a href="https://blo
 <li>RSS and Atom feeds.</li>
 </ul>
 <h2 id="installation">Installation</h2>
-<pre><code class="language-bash">pip install gitblog2
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitblog2
+</span></code></pre></div>
 <p>There's also a <a href="https://hub.docker.com/repository/docker/henritel/gitblog2">container image</a> available on docker hub.</p>
 <h2 id="usage">Usage</h2>
 <p>From the command line:</p>
-<pre><code class="language-bash">gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com --no-social
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitblog2<span class="w"> </span>https://codeberg.org/HenriTEL/gitblog2.git<span class="w"> </span>--repo-subdir<span class="o">=</span>example<span class="w"> </span>--url-base<span class="o">=</span>https://example.com<span class="w"> </span>--no-social
+</span></code></pre></div>
 <p>From the library:</p>
-<pre><code class="language-python">from gitblog2 import GitBlog
-
-source_repo = &quot;https://codeberg.org/HenriTEL/git-blog.git&quot;
-output_dir = &quot;./public&quot;
-url_base = &quot;https://example.com&quot;
-with GitBlog(source_repo, repo_subdir=&quot;example&quot;) as gb:
-    gb.write_blog(output_dir, base_url=url_base, with_social=False)
-</code></pre>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">gitblog2</span> <span class="kn">import</span> <span class="n">GitBlog</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">source_repo</span> <span class="o">=</span> <span class="s2">&quot;https://codeberg.org/HenriTEL/git-blog.git&quot;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;./public&quot;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">url_base</span> <span class="o">=</span> <span class="s2">&quot;https://example.com&quot;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">with</span> <span class="n">GitBlog</span><span class="p">(</span><span class="n">source_repo</span><span class="p">,</span> <span class="n">repo_subdir</span><span class="o">=</span><span class="s2">&quot;example&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gb</span><span class="p">:</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">gb</span><span class="o">.</span><span class="n">write_blog</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">url_base</span><span class="p">,</span> <span class="n">with_social</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 <p>From the container:</p>
-<pre><code class="language-bash">docker run --rm -v $PWD/public:/public \
-    -e SOURCE_REPO=https://github.com/HenriTEL/gitblog2.git \
-    -e REPO_SUBDIR=example \
-    -e BASE_URL=https://example.com \
-    -e NO_SOCIAL=true \
-    henritel/gitblog2
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$PWD</span>/public:/public<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>-e<span class="w"> </span><span class="nv">SOURCE_REPO</span><span class="o">=</span>https://github.com/HenriTEL/gitblog2.git<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>-e<span class="w"> </span><span class="nv">REPO_SUBDIR</span><span class="o">=</span>example<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>-e<span class="w"> </span><span class="nv">BASE_URL</span><span class="o">=</span>https://example.com<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span>-e<span class="w"> </span><span class="nv">NO_SOCIAL</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span>henritel/gitblog2
+</span></code></pre></div>
 <h2 id="roadmap">Roadmap</h2>
 <p>High priority:</p>
 <ul>
