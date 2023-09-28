@@ -5,55 +5,15 @@
 ![Package version](
 https://img.shields.io/pypi/v/gitblog2?color=%2334D058&label=pypi%20package)
 
-Gitblog2 is a simple, fast and beautiful blog generator.
-Blog posts are writen in Markdown and that's it. One of the main goals is to keep the learning curve as low as possible.
-
-Check a [live example](https://blog.henritel.com).  
+Gitblog2 is a blog generator focused on speed and simplicity.
+Blog posts are written in Markdown and that's it. Here is a [live example](https://blog.henritel.com) solely based on [this repository](https://github.com/HenriTEL/blog). See? It's just Markdown with a bunch or images.   
 
 ## Features
 
 * Build static HTML files from Markdown files. No JavaScript, no divs, no css classes.
-* About 10kB compressed, stylesheet and icons included.
-* Sync your profile picture and social accounts based on your Github profile.
+* Low footprint (about 10kB compressed).
+* Profile picture and social accounts included based on your Github profile.
 * RSS and Atom feeds.
-
-## Getting Started
-
-**From zero to a live blog.**
-
-You can see the full setup of a working blog [here](https://github.com/HenriTEL/blog).  
-For this tutorial we'll assume that you use **Github** to host your repo and **Cloudflare Pages** to host your blog. You need to have accounts on those platforms as a prerequisite.  
-
-1. Create a repo, add a folder of your first section, add a Markdown file in it for your first blog post.  
-Use a `draft/` folder to save posts that are not ready for publication.  
-Non Markdown files and common irrelevant content is ignored by default, e.g. `.github/`, `README.md`, `LICENSE.md`.
-
-2. Add a `.github/workflows/publish.yaml` file to your repo with the following content:
-
-    ```yaml
-    name: Publish Blog
-    on:
-      push:
-        branches: [ main ]
-    jobs:
-      build-and-publish:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: docker://henritel/gitblog2
-            with:
-              args: post-css cloudflare-pages
-            env:
-              SOURCE_REPO: https://github.com/${{ github.repository }}
-              BASE_URL: <YOUR_BLOG_URL>
-              GITHUB_TOKEN: ${{ secrets.RO_GITHUB_TOKEN }}
-              CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-              CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    ```
-
-    Set `BASE_URL` with your blog's base url.  
-    This will automatically publish your blog on Cloudflare Pages when you push changes to your repo.  
-    It assumes your cloudflare project is named `blog` but if that's not the case you can add an `CLOUDFLARE_PROJECT` env to the workflow with the correponding name.
-3. In your repo's settings, go under `secrets/actions` to set the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` secrets based on your [Cloudflare API keys](https://developers.cloudflare.com/fundamentals/api/get-started/keys/#view-your-api-key). Also setup a `RO_GITHUB_TOKEN` if you want to add social capabilities like a profile pic and links to social accounts. Go to <https://github.com/settings/tokens/> to generate a token with `read:user` access rights.
 
 ## Installation
 
@@ -92,35 +52,6 @@ docker run --rm -v $PWD/public:/public \
     -e BASE_URL=https://example.com \
     -e NO_SOCIAL=true \
     henritel/gitblog2
-```
-
-## Customisation
-
-Gitblog2 just produces static file so it should integrate seamlessly integrate with anything (cron jobs, commit hooks, nginx, apache, you name it.).  
-You can use [simplecss](https://simplecss.org/demo) as an alternate stylesheet, support for more stylesheets is planned.
-
-## Dev quickstart
-
-Make sure to have [poetry](https://python-poetry.org/) installed, then  
-Setup your local web server:
-
-```bash
-poetry install
-wget "https://redbean.dev/redbean-tiny-2.2.com" -O redbean.zip
-zip redbean.zip -j providers/assets/.init.lua
-chmod +x redbean.zip
-```
-
-In one terminal, update the blog as needed:
-
-```bash
-poetry run gitblog2 -l debug --repo-subdir=example --base-url=https://example.com --no-social
-```
-
-In another terminal, serve the blog:
-
-```bash
-./redbean.zip -D ./public
 ```
 
 ## Roadmap
