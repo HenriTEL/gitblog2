@@ -6,7 +6,7 @@
 https://img.shields.io/pypi/v/gitblog2?color=%2334D058&label=pypi%20package)
 
 Gitblog2 is a blog generator focused on speed and simplicity.
-Blog posts are written in Markdown and that's it. Here is a [live example](https://blog.henritel.com) solely based on [this repository](https://github.com/HenriTEL/blog). See? It's just Markdown with a bunch or images.   
+Blog posts are written in Markdown and that's it. Look at it yourself: this [live example](https://blog.henritel.com) is solely based on [this repository](https://github.com/HenriTEL/blog).
 
 ## Features
 
@@ -56,11 +56,6 @@ docker run --rm -v $PWD/public:/public \
 
 ## Roadmap
 
-High priority:
-
-* Move the doc to the wiki with different audiences.
-* Add image in README like <https://github.com/nextcloud/server>
-
 Low priority:
 
 * If avatar already present, don't attempt to download it and include it in the blog.
@@ -68,7 +63,7 @@ Low priority:
 * Add about page (and link to it from pp) based on user bio and README.md
 * Use user's profile handle first and commit author only as a fallback
 * E2E tests
-* Deal with TODOs or make issues for newcomers
+* Deal with code's TODOs or make issues for newcomers
 * Improve score on <https://pagespeed.web.dev/analysis/https-blog-henritel-com/oktd50o2sy?form_factor=desktop>
 * Add doc for customisation
   * Change template + accessible variables
@@ -78,8 +73,7 @@ Low priority:
 * Make a better TOC extension (remove div and classes)
 * Make markdown renderer set loading="lazy" on img tags
 * Unit tests, pagespeed test
-* Linting (pylint + pyre?)
-* Refactor lib.py into multiple files
+* Refactor lib.py
 * Add contributing section
 * Remove div and classes from footnotes
 
