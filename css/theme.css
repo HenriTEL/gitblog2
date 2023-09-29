@@ -232,23 +232,26 @@ tbody tr:nth-child(odd) {
 }
 
 details {
-	background-color: var(--background-1);
+	border: 1px solid var(--text-main);
 	border-radius: 6px;
 }
 
+details[open] {
+	padding: 0.5em;
+}
+
 summary {
+	font-weight: bold;
 	cursor: pointer;
 }
 
-summary:hover,
-summary:focus {
-	text-decoration: underline;
+details[open] summary {
+	border-bottom: 1px solid var(--text-main);
+	margin-bottom: 0.5em;
 }
 
 body>footer {
 	border-top: 1px solid var(--background-1);
-	/* background-color: var(--background-1);
-	border-radius: 12px 12px 0px 0px; */
 }
 
 @media print {

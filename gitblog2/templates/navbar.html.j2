@@ -1,7 +1,7 @@
 <nav>
         <ul>
                 {%- if avatar_url %}
-                <li><img class="icon" heigth="48" width="48" src="/media/avatar" alt="Blog's logo"></li>
+                <li><a href="/"><img class="icon" heigth="48" width="48" src="/media/avatar" alt="Blog's logo"></a></li>
                 <li>{{ author_name }}'s Blog</li>&nbsp;&nbsp;
                 {%- endif %}
                 {%- for section in sections %}
