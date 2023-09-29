@@ -2,8 +2,7 @@
 
 > Git + Markdown = Blog
 
-![Package version](
-https://img.shields.io/pypi/v/gitblog2?color=%2334D058&label=pypi%20package)
+[![PyPI Version][pypi-v-image]][pypi-v-link]
 
 Gitblog2 is a blog generator focused on speed and simplicity.
 Blog posts are written in Markdown and that's it. Look at it yourself: this [live example](https://blog.henritel.com) is solely based on [this repository](https://github.com/HenriTEL/blog).
@@ -99,3 +98,8 @@ Low priority:
 <https://github.com/programble/writ>  
 <https://github.com/oxalorg/sakura>  
 <https://github.com/susam/spcss>  
+
+
+<!-- Badges -->
+[pypi-v-image]: https://img.shields.io/pypi/v/gitblog2.svg
+[pypi-v-link]: https://pypi.org/project/gitblog2/
