@@ -295,16 +295,19 @@ class GitBlog:
 
     def parse_md(self, md_content: str) -> tuple[str, str, str]:
         """Return title, description and main_content of the article
-        (without the title ans description).
+        (md_content minus the title and description).
         """
+        res: list[str] = []
         title_pattern = r"^# (.+)\n"
-        # TODO deal with multi >
-        desc_pattern = r"^\> (.+)\n"
-        title = re.search(title_pattern, md_content, re.MULTILINE).group(1).rstrip()
-        md_content = re.sub(title_pattern, "", md_content, 1, re.MULTILINE)
-        desc = re.search(desc_pattern, md_content, re.MULTILINE).group(1).rstrip()
-        md_content = re.sub(desc_pattern, "", md_content, 1, re.MULTILINE)
-        return title, desc, md_content
+        desc_pattern = r"^\> (.+)\n"  # TODO deal with multi >
+        for pattern in (title_pattern, desc_pattern):
+            match = re.search(pattern, md_content, re.MULTILINE)
+            if match:
+                res.append(match.group(1).rstrip())
+                md_content = re.sub(pattern, "", md_content, 1, re.MULTILINE)
+            else:
+                res.append("")
+        return res[0], res[1], md_content
 
     def _github_api_get(self, resource: str):
         response = requests.get(
