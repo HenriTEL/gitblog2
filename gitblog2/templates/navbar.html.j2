@@ -5,7 +5,7 @@
                 <li>{{ author_name }}'s Blog</li>&nbsp;&nbsp;
                 {%- endif %}
                 {%- for section in sections %}
-                <li><a href="/{{ section|lower }}"><strong>{{ section|title }}</strong></a></li>
+                <li><a href="/{{ section }}"><strong>{{ section|title }}</strong></a></li>
                 {%- endfor %}
         </ul>
 </nav>

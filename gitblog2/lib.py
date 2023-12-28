@@ -211,7 +211,6 @@ class GitBlog:
     ) -> str:
         template = self.j2env.get_template("index.html.j2")
         if section == "Home":
-            # TODO sort by publication date
             section_paths = [p for ps in self.section_to_paths.values() for p in ps]
         else:
             section_paths = self.section_to_paths[section]
@@ -299,11 +298,11 @@ class GitBlog:
         """
         res: list[str] = []
         title_pattern = r"^# (.+)\n"
-        desc_pattern = r"^\> (.+)\n"  # TODO deal with multi >
+        desc_pattern = r"^>\s*(.*(?:\n>\s*.*)*)"
         for pattern in (title_pattern, desc_pattern):
             match = re.search(pattern, md_content, re.MULTILINE)
             if match:
-                res.append(match.group(1).rstrip())
+                res.append(match.group(1).rstrip().replace("\n> ", "\n"))
                 md_content = re.sub(pattern, "", md_content, 1, re.MULTILINE)
             else:
                 res.append("")

@@ -35,28 +35,31 @@ class BlogPosts:
 
     def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: str):
         self.path_to_blog_post: dict[str, BlogPost] = {}
-        latest_commit = next(commits)
-        last_commit_date = latest_commit.committed_datetime
         path_to_hash: dict[str, str] = {}
+        latest_commit = next(commits)
+
         for path, hash in self._gen_path_and_hashes(latest_commit.tree):
             path_to_hash[path] = hash
             self.path_to_blog_post[path] = BlogPost(
-                last_commit_date,
-                last_commit_date,
+                datetime.min,
+                datetime.min,
                 str(latest_commit.author),
                 path[:-3].removeprefix(repo_subdir),
             )
-
+        parent_commit = latest_commit
         # Traverse commit history to find posts creation dates
         for commit in commits:
-            if not path_to_hash:
-                break
-            changed_paths, path_to_hash = fast_diff(commit.tree, path_to_hash)
+            changed_paths, new_path_to_hash = fast_diff(path_to_hash, commit.tree)
             for path in changed_paths:
                 blog_post = self.path_to_blog_post[path]
-                if blog_post.last_update_dt == last_commit_date:
-                    blog_post.last_update_dt = commit.committed_datetime
-                blog_post.creation_dt = commit.committed_datetime
+                if blog_post.last_update_dt == datetime.min:
+                    blog_post.last_update_dt = parent_commit.committed_datetime
+                if path not in new_path_to_hash:
+                    blog_post.creation_dt = parent_commit.committed_datetime
+            if not path_to_hash:
+                break
+            parent_commit = commit
+            path_to_hash = new_path_to_hash
 
     def _gen_path_and_hashes(
         self, tree: Tree
