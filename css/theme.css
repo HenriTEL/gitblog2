@@ -184,7 +184,7 @@ samp,
 time {
 	background: var(--background-1);
 	border-radius: 6px;
-	font-size: 1em;
+	font-size: 90%;
 }
 
 pre>code {
