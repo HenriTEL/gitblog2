@@ -1,5 +1,6 @@
 <footer>
   <p>
+  {%- if social_accounts %}
     {%- for website, url in social_accounts.items() %}
     <a href="{{ url }}" title="{{ website }}">
       <svg>
@@ -8,6 +9,7 @@
     </a>&nbsp;
     {%- endfor %}
     <br />
+  {%- endif %}
     <b title="Creative Commons Attribution 4.0 International license">
       <svg>
         <use xlink:href="/media/icons.svg#cc" />

@@ -2,35 +2,35 @@
 <html lang="en">
 
 <head>
-    {% include "head_common.html.j2" %}
-    {%- for type, path in feeds.items() %}
-    <link href="{{path}}" type="application/{{type}}+xml" rel="alternate" title="Sitewide {{type}} feed" />
-    {%- endfor %}
+  {% include "head_common.html.j2" %}
+  {%- for type, path in feeds.items() %}
+  <link href="{{path}}" type="application/{{type}}+xml" rel="alternate" title="Sitewide {{type}} feed" />
+  {%- endfor %}
 </head>
 
 <body>
-    <header>
-        {% with author_name=blog_posts[0].author %}
-        {% include "navbar.html.j2" %}
-        {% endwith %}
-    </header>
-
-    <main>
-        {%- for blog_post in blog_posts|sort(attribute='creation_dt', reverse=True) %}
-        <article>
-            <strong><a href="/{{ blog_post.relative_path }}">{{ blog_post.title }}</a></strong>
-            <p>
-                {{ blog_post.description }}
-            </p>
-            <small>
-                Last updated on {{ blog_post.human_time }}
-            </small>
-        </article>
-        {%- endfor %}
-    </main>
+  <header>
     {% with author_name=blog_posts[0].author %}
-    {% include "footer.html.j2" %}
+    {% include "navbar.html.j2" %}
     {% endwith %}
+  </header>
+
+  <main>
+    {%- for blog_post in blog_posts|sort(attribute='creation_dt', reverse=True) %}
+    <article>
+      <strong><a href="{{ blog_post.relative_path }}">{{ blog_post.title }}</a></strong>
+      <p>
+      {{ blog_post.description }}
+      </p>
+      <small>
+        Last updated on {{ blog_post.human_time }}
+      </small>
+    </article>
+    {%- endfor %}
+  </main>
+  {% with author_name=blog_posts[0].author %}
+  {% include "footer.html.j2" %}
+  {% endwith %}
 </body>
 
 </html>

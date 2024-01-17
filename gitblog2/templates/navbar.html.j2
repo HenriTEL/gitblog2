@@ -1,11 +1,11 @@
 <nav>
-        <ul>
-                {%- if avatar_url %}
-                <li><a href="/"><img class="icon" heigth="48" width="48" src="/media/avatar" alt="Blog's logo"></a></li>
-                <li>{{ author_name }}'s Blog</li>&nbsp;&nbsp;
-                {%- endif %}
-                {%- for section in sections %}
-                <li><a href="/{{ section }}"><strong>{{ section|title }}</strong></a></li>
-                {%- endfor %}
-        </ul>
+  <ul>
+    {%- if avatar_url %}
+    <li><a href="/"><img class="icon" heigth="48" width="48" src="/media/avatar" alt="Blog's logo"></a></li>
+    <li>{{ author_name }}'s Blog</li>&nbsp;&nbsp;
+    {%- endif %}
+    {%- for section in sections %}
+    <li><a href="/{{ section }}"><strong>{{ section|title }}</strong></a></li>
+    {%- endfor %}
+  </ul>
 </nav>
