@@ -1,0 +1,501 @@
+/* Normalize css (based on github.com/necolas/normalize.css v8.0.1)
+   ========================================================================== */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Normalize end
+   ========================================================================== */
+
+body {
+  margin: 0;
+  display: grid;
+  grid-template-rows: [header] min-content [main] auto [footer] min-content;
+  min-height: 100svh;
+}
+
+body>footer {
+  text-align: center;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+nav li+li {
+  margin-left: 1rem;
+}
+
+header>:not(nav) {
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+nav {
+  padding: 0.5rem 0 0.5rem 0;
+}
+
+nav ul,
+nav ol {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 .5rem;
+}
+
+body>main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 .5rem;
+}
+
+header>*:not(nav) {
+  padding: 0 .5rem;
+}
+
+header img {
+  vertical-align: middle;
+}
+
+main>article:first-child {
+  margin-top: 2rem;
+}
+
+article {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+  margin-bottom: 2rem;
+}
+
+article>* {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+article>p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 1rem;
+  margin-bottom: .6rem;
+}
+
+h2 {
+  font-size: 2.6rem;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.44rem;
+}
+
+h5 {
+  font-size: 1.15rem;
+}
+
+h6 {
+  font-size: 0.96rem;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+a {
+  display: inline-block;
+}
+
+blockquote,
+q {
+  margin: 1.5em 0;
+  padding: 0.5em 1em;
+}
+
+mark {
+  padding: 0 2px 0 2px;
+}
+
+label {
+  vertical-align: middle;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+code,
+samp,
+time {
+  padding: 2.5px 5px;
+}
+
+
+pre>code {
+  padding: 10px;
+  display: block;
+  overflow-x: auto;
+}
+
+kbd {
+  padding: 2px 4px 2px 4px;
+}
+
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  width: 100%;
+  table-layout: fixed;
+}
+
+td,
+th {
+  padding: 6px;
+  vertical-align: top;
+}
+
+details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5em 0.5em 0;
+  overflow: hidden;
+}
+
+summary {
+  margin: -0.5em -0.5em 0;
+  padding: 0.5em;
+}
+
+
+footer p {
+  margin: 0;
+}:root {
+	/* Fonts based on https://systemfontstack.com/ */
+	--main-content-font: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+	--title-font: Superclarendon, 'Bookman Old Style', 'URW Bookman', 'URW Bookman L', 'Georgia Pro', Georgia, serif;
+	--sans-serif: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif;
+	--mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+	--primary-hue: 35deg;
+	--primary-color: hwb(var(--primary-hue) 12% 6%);
+	--primary-color-major: hwb(var(--primary-hue) 24% 0%);
+	--background-0: hwb(0deg 98% 2%);
+	--background-1: hwb(0deg 80% 20%);
+	--text-main: black;
+	--text-muted: hwb(0deg 25% 75%);
+	--highlight: hwb(60 0% 0%);
+	--text-highlight: black;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-0: hwb(0deg 2% 98%);
+		--background-1: hwb(0deg 12% 88%);
+		--text-main: hwb(0deg 80% 20%);
+		--text-muted: hwb(0deg 60% 40%);
+		--highlight: hwb(60 0% 20%);
+	}
+
+	img,
+	video {
+		opacity: 0.8;
+	}
+}
+
+body {
+	font-family: var(--main-content-font);
+	font-size: 1.15rem;
+	font-weight: 400;
+	line-height: 1.875rem;
+	word-wrap: break-word;
+	color: var(--text-main);
+	background: var(--background-0);
+	text-rendering: optimizeLegibility;
+}
+
+body>header img {
+	border-radius: 15%;
+}
+
+main>article {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--background-1);
+	border-radius: .25rem;
+}
+
+article>small::before,
+header small::before {
+	content: "— ";
+}
+
+article:first-child {
+	border-bottom: 1px solid var(--background-1);
+}
+
+article:first-child>a {
+	text-decoration: none;
+}
+
+nav {
+	color: var(--primary-color-minor);
+	font-family: var(--title-font);
+	border-bottom: 1px solid var(--background-1);
+}
+
+
+nav ol,
+nav ul {
+	list-style-type: none;
+}
+
+aside {
+	background-color: var(--background-1);
+	border-radius: 12px;
+}
+
+h1 {
+	max-width: 32rem;
+	font-family: var(--title-font);
+	font-size: 2.6rem;
+	font-weight: 200;
+	line-height: 1.1;
+	margin-bottom: .5rem;
+}
+
+h2 {
+	font-size: 1.6rem;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6,
+th {
+	font-family: var(--title-font);
+	font-weight: 200;
+	line-height: 1.1;
+}
+
+blockquote,
+q {
+	border-left: 4px solid var(--primary-color);
+	font-style: italic;
+}
+
+blockquote>footer {
+	font-style: normal;
+	border: 0;
+}
+
+blockquote cite {
+	font-style: normal;
+}
+
+address {
+	font-style: normal;
+}
+
+mark {
+	background-color: var(--highlight);
+	border-radius: 2px;
+	color: var(--text-highlight);
+}
+
+a {
+	color: inherit;
+	text-decoration-thickness: .15rem;
+}
+
+a:hover {
+	text-decoration: none;
+	color: var(--primary-color);
+}
+
+a>code,
+a>strong {
+	color: inherit;
+}
+
+a>svg {
+	color: var(--primary-color);
+}
+
+a>svg:hover {
+	color: var(--primary-color-major);
+}
+
+code,
+samp,
+time,
+kbd,
+pre,
+var {
+	font-family: var(--mono);
+}
+
+b,
+strong {
+	font-weight: bolder;
+}
+
+legend {
+	font-size: 0.9em;
+	font-weight: 600;
+}
+
+small,
+small::before {
+	color: var(--text-muted);
+	font-size: 80%;
+}
+
+code,
+samp,
+time {
+	background: var(--background-1);
+	border-radius: 6px;
+	font-size: 90%;
+}
+
+pre>code {
+	padding: 10px;
+	display: block;
+	overflow-x: auto;
+}
+
+abbr[title] {
+	text-decoration: underline dotted;
+}
+
+kbd {
+	border-style: solid;
+	border-width: 1px 1px 3px 1px;
+	border-radius: 6px;
+	padding: 0.1rem 0.4rem;
+}
+
+hr {
+	border: none;
+	border-top: 1px solid var(--background-1);
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td,
+th {
+	word-wrap: break-word;
+	width: fit-content;
+}
+
+thead {
+	border-bottom: 1px solid var(--background-1);
+}
+
+tfoot {
+	border-top: 1px solid var(--background-1);
+}
+
+tbody tr:nth-child(odd) {
+	background-color: var(--background-1);
+}
+
+details {
+	border: 1px solid var(--text-main);
+	border-radius: 6px;
+}
+
+details[open] {
+	padding: 0.5em;
+}
+
+summary {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+details[open] summary {
+	border-bottom: 1px solid var(--text-main);
+	margin-bottom: 0.5em;
+}
+
+body>footer {
+	border-top: 1px solid var(--background-1);
+}
+
+@media print {
+
+	body,
+	pre,
+	code,
+	summary,
+	details {
+		background-color: #fff;
+	}
+
+	body,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	pre,
+	code,
+	footer,
+	summary,
+	strong {
+		color: #000;
+	}
+
+	tbody tr:nth-child(even) {
+		background-color: #f2f2f2;
+	}
+
+	a {
+		color: #00f;
+		text-decoration: underline;
+	}
+}
