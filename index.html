@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="images/favicon.svg">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.4">
     
     
       
@@ -279,9 +279,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#golden-resources" class="md-nav__link">
+  <a href="#great-content" class="md-nav__link">
     <span class="md-ellipsis">
-      Golden resources
+      Great content
     </span>
   </a>
   
@@ -427,9 +427,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#golden-resources" class="md-nav__link">
+  <a href="#great-content" class="md-nav__link">
     <span class="md-ellipsis">
-      Golden resources
+      Great content
     </span>
   </a>
   
@@ -464,8 +464,9 @@
 <p>Git + Markdown = Blog</p>
 </blockquote>
 <p><a href="https://pypi.org/project/gitblog2/"><img alt="PyPI Version" src="https://img.shields.io/pypi/v/gitblog2.svg" /></a></p>
-<p>Gitblog2 is a blog generator focused on speed and simplicity.
-Blog posts are written in Markdown and that's it. Look at it yourself: this <a href="https://blog.henritel.com">live example</a> is solely based on <a href="https://github.com/HenriTEL/blog">this repository</a>.</p>
+<p>Gitblog2 is a blog generator focused on speed and simplicity.<br />
+Blog posts are written in Markdown and that's it.<br />
+Look at it yourself: this <a href="https://blog.henritel.com">live example</a> is solely based on <a href="https://github.com/HenriTEL/blog">this repository</a>.</p>
 <h2 id="features">Features</h2>
 <ul>
 <li>Build static HTML files from Markdown files. No JavaScript, no divs, no css classes.</li>
@@ -479,12 +480,12 @@ Blog posts are written in Markdown and that's it. Look at it yourself: this <a h
 <p>There's also a <a href="https://hub.docker.com/repository/docker/henritel/gitblog2">container image</a> available on docker hub.</p>
 <h2 id="usage">Usage</h2>
 <p>From the command line:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitblog2<span class="w"> </span>https://codeberg.org/HenriTEL/gitblog2.git<span class="w"> </span>--repo-subdir<span class="o">=</span>example<span class="w"> </span>--url-base<span class="o">=</span>https://example.com<span class="w"> </span>--no-social
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitblog2<span class="w"> </span>https://github.com/HenriTEL/gitblog2.git<span class="w"> </span>--repo-subdir<span class="o">=</span>example<span class="w"> </span>--base-url<span class="o">=</span>https://example.com<span class="w"> </span>--no-social
 </span></code></pre></div>
 <p>From the library:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">gitblog2</span> <span class="kn">import</span> <span class="n">GitBlog</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">source_repo</span> <span class="o">=</span> <span class="s2">&quot;https://codeberg.org/HenriTEL/git-blog.git&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">source_repo</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/HenriTEL/gitblog2.git&quot;</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;./public&quot;</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">url_base</span> <span class="o">=</span> <span class="s2">&quot;https://example.com&quot;</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">with</span> <span class="n">GitBlog</span><span class="p">(</span><span class="n">source_repo</span><span class="p">,</span> <span class="n">repo_subdir</span><span class="o">=</span><span class="s2">&quot;example&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gb</span><span class="p">:</span>
@@ -520,8 +521,8 @@ Blog posts are written in Markdown and that's it. Look at it yourself: this <a h
 <li>Add contributing section</li>
 <li>Remove div and classes from footnotes</li>
 </ul>
-<h2 id="golden-resources">Golden resources</h2>
-<p><a href="https://accessiblepalette.com">https://accessiblepalette.com</a>
+<h2 id="great-content">Great content</h2>
+<p><a href="https://accessiblepalette.com">https://accessiblepalette.com</a><br />
 <a href="https://modernfontstacks.com/">https://modernfontstacks.com/</a><br />
 <a href="https://anthonyhobday.com/sideprojects/saferules/">https://anthonyhobday.com/sideprojects/saferules/</a><br />
 <a href="https://lawsofux.com/">https://lawsofux.com/</a><br />
@@ -530,8 +531,8 @@ Blog posts are written in Markdown and that's it. Look at it yourself: this <a h
 <a href="https://developer.mozilla.org/en-US/docs/Web/SVG">https://developer.mozilla.org/en-US/docs/Web/SVG</a><br />
 <a href="https://icons.getbootstrap.com/">https://icons.getbootstrap.com/</a>  </p>
 <h2 id="classless-stylesheets-candidates">Classless stylesheets candidates</h2>
-<p><a href="https://github.com/kevquirk/simple.css/blob/main/simple.css">https://github.com/kevquirk/simple.css/blob/main/simple.css</a>  </p>
-<p><a href="https://github.com/yegor256/tacit">https://github.com/yegor256/tacit</a><br />
+<p><a href="https://github.com/kevquirk/simple.css/blob/main/simple.css">https://github.com/kevquirk/simple.css/blob/main/simple.css</a><br />
+<a href="https://github.com/yegor256/tacit">https://github.com/yegor256/tacit</a><br />
 <a href="https://github.com/kognise/water.css">https://github.com/kognise/water.css</a><br />
 <a href="https://github.com/xz/new.css">https://github.com/xz/new.css</a><br />
 <a href="https://github.com/edwardtufte/tufte-css">https://github.com/edwardtufte/tufte-css</a><br />
@@ -585,10 +586,10 @@ Blog posts are written in Markdown and that's it. Look at it yourself: this <a h
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.c011b7c0.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="assets/javascripts/bundle.7389ff0e.min.js"></script>
       
     
   </body>
