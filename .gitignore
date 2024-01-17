@@ -6,6 +6,7 @@
 __pycache__/
 dist/
 .venv/
+.pytest*
 
 # Project specific
 www/

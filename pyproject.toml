@@ -7,6 +7,7 @@ license = "MIT"
 readme = "README.md"
 packages = [{ include = "gitblog2" }]
 include = ["gitblog2/*"]
+exclude = ["gitblog2/tests"]
 
 [tool.poetry.dependencies]
 python = ">=3.8"
@@ -31,3 +32,6 @@ script = "build.py"
 [tool.pyright]
 include = ["gitblog2"]
 stubPath = ["typings"]
+
+[tool.poetry.group.test.dependencies]
+pytest = ">=7.4.4"

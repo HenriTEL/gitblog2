@@ -38,8 +38,8 @@ class GitBlog:
         source_repo: str,
         clone_dir: str = "",
         repo_subdir: str = "",
-        ignore_dirs: list[str] = ["draft", "media", "templates", ".github"],
-        ignore_files: list[str] = ["README.md", "LICENSE.md"],
+        ignore_dirs: tuple[str] = ("draft", "media", "templates", ".github"),
+        ignore_files: tuple[str] = ("README.md", "LICENSE.md"),
         fetch: bool = True,
     ):
         self.source_repo = source_repo
@@ -125,8 +125,10 @@ class GitBlog:
     def write_articles(self, output_dir: str, with_social: bool = True):
         template = self.j2env.get_template("article.html.j2")
         for path, content in self.gen_articles_content():
+            rel_path = self.blog_posts[str(path)].relative_path
             full_page = self.render_article(content, str(path), template, with_social)
-            target_path = output_dir + "/" + str(path).replace(".md", ".html")
+            target_path = output_dir + rel_path + ".html"
+            print(target_path)
             _write_file(full_page, target_path)
 
     def write_indexes(self, output_dir: str, with_social: bool = True):
@@ -196,13 +198,18 @@ class GitBlog:
             extensions=MD_LIB_EXTENSIONS,
             extension_configs=MD_LIB_EXTENSION_CONFIGS,
         )
-        return template.render(
-            blog_post=self.blog_posts[path],
-            main_content=html_content,
-            sections=self.sections,
-            avatar_url="/media/avatar" if with_social else None,
-            social_accounts=self.social_accounts if with_social else None,
-        )
+        try:
+            final_html = template.render(
+                blog_post=self.blog_posts[path],
+                main_content=html_content,
+                sections=self.sections,
+                avatar_url="/media/avatar" if with_social else None,
+                social_accounts=self.social_accounts if with_social else None,
+            )
+        except Exception as e:
+            logging.error("Failed to render %s", path)
+            raise e
+        return final_html
 
     def render_index(
         self,

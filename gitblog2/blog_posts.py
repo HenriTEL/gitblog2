@@ -38,8 +38,8 @@ class BlogPosts:
         path_to_hash: dict[str, str] = {}
         latest_commit = next(commits)
 
-        for path, hash in self._gen_path_and_hashes(latest_commit.tree):
-            path_to_hash[path] = hash
+        for path, file_hash in self._gen_path_and_hashes(latest_commit.tree):
+            path_to_hash[path] = file_hash
             self.path_to_blog_post[path] = BlogPost(
                 datetime.min,
                 datetime.min,
@@ -56,7 +56,7 @@ class BlogPosts:
                     blog_post.last_update_dt = parent_commit.committed_datetime
                 if path not in new_path_to_hash:
                     blog_post.creation_dt = parent_commit.committed_datetime
-            if not path_to_hash:
+            if not new_path_to_hash:
                 break
             parent_commit = commit
             path_to_hash = new_path_to_hash
