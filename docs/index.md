@@ -4,8 +4,9 @@
 
 [![PyPI Version][pypi-v-image]][pypi-v-link]
 
-Gitblog2 is a blog generator focused on speed and simplicity.
-Blog posts are written in Markdown and that's it. Look at it yourself: this [live example](https://blog.henritel.com) is solely based on [this repository](https://github.com/HenriTEL/blog).
+Gitblog2 is a blog generator focused on speed and simplicity.  
+Blog posts are written in Markdown and that's it.  
+Look at it yourself: this [live example](https://blog.henritel.com) is solely based on [this repository](https://github.com/HenriTEL/blog).
 
 ## Features
 
@@ -27,7 +28,7 @@ There's also a [container image](https://hub.docker.com/repository/docker/henrit
 From the command line:
 
 ```bash
-gitblog2 https://codeberg.org/HenriTEL/gitblog2.git --repo-subdir=example --url-base=https://example.com --no-social
+gitblog2 https://github.com/HenriTEL/gitblog2.git --repo-subdir=example --base-url=https://example.com --no-social
 ```
 
 From the library:
@@ -35,7 +36,7 @@ From the library:
 ```python
 from gitblog2 import GitBlog
 
-source_repo = "https://codeberg.org/HenriTEL/git-blog.git"
+source_repo = "https://github.com/HenriTEL/gitblog2.git"
 output_dir = "./public"
 url_base = "https://example.com"
 with GitBlog(source_repo, repo_subdir="example") as gb:
@@ -76,9 +77,9 @@ Low priority:
 * Add contributing section
 * Remove div and classes from footnotes
 
-## Golden resources
+## Great content
 
-<https://accessiblepalette.com>
+<https://accessiblepalette.com>  
 <https://modernfontstacks.com/>  
 <https://anthonyhobday.com/sideprojects/saferules/>  
 <https://lawsofux.com/>  
@@ -90,7 +91,6 @@ Low priority:
 ## Classless stylesheets candidates
 
 <https://github.com/kevquirk/simple.css/blob/main/simple.css>  
-
 <https://github.com/yegor256/tacit>  
 <https://github.com/kognise/water.css>  
 <https://github.com/xz/new.css>  
