@@ -25,7 +25,7 @@ def blog_dir():
     shutil.rmtree(OUTPUT_DIR)
 
 
-def test_content_match(blog_dir):
+def test_content_match(blog_dir: str):
     expected_content_dir = os.path.dirname(os.path.abspath(__file__)) + "/example_output"
     files = ["index.html", "tech/example.html", "tech/index.html"]
     (match, mismatch, errors) = filecmp.cmpfiles(
@@ -34,6 +34,6 @@ def test_content_match(blog_dir):
     assert len(match) == len(files), f"mismatch: {mismatch}, errors: {errors}"
 
 
-def test_has_static_assets(blog_dir):
+def test_has_static_assets(blog_dir: str):
     for path in ["media/favicon.svg", "media/icons.svg", "style.css"]:
         assert os.path.exists(blog_dir + "/" + path)

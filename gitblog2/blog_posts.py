@@ -26,8 +26,8 @@ class BlogPosts:
         self,
         commits: Iterator[Commit],
         repo_subdir: str = "",
-        ignore_dirs: list[str] = [],
-        ignore_files: list[str] = [],
+        ignore_dirs: tuple[str, ...] = (),
+        ignore_files: tuple[str, ...] = (),
     ):
         self.ignore_dirs = ignore_dirs
         self.ignore_files = ignore_files

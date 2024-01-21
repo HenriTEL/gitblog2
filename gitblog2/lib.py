@@ -38,8 +38,8 @@ class GitBlog:
         source_repo: str,
         clone_dir: str = "",
         repo_subdir: str = "",
-        ignore_dirs: tuple[str] = ("draft", "media", "templates", ".github"),
-        ignore_files: tuple[str] = ("README.md", "LICENSE.md"),
+        ignore_dirs: tuple[str, ...] = ("draft", "media", "templates", ".github"),
+        ignore_files: tuple[str, ...] = ("README.md", "LICENSE.md"),
         fetch: bool = True,
     ):
         self.source_repo = source_repo
