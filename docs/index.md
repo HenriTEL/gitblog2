@@ -56,6 +56,39 @@ docker run --rm -v $PWD/public:/public \
 
 ## Roadmap
 
+Improve the CLI using tips from <https://clig.dev>:
+
+* Once installed, show what commands to run to actually start using it
+* Comprehensive help texts
+* Provide lots of examples
+* Suggest what command to run next
+* Suggest what to do when there is an error.
+* Provide useful commands to debug nd explore, maybe `gitblog2 tree` to have a look at what the generated blog would look like, `gitblog config` to find what options are enabled/disabled. Think about ways to show metadata on articles like the updated/created at fields, maybe also list the custom templates and what articles would make use of them.
+* Add a dry-run option
+* Think about detecting misconfigurations, providing helpful message that point toward the right direction (e.g. line number in the faulty template).
+* On the other hand, say when everything looks good (`gitblog troublesoot`?).
+* Autocompletion?
+* Not printing scary-looking stack traces, explain errors instead.
+* Link the docs and code on the help page
+* Link the code from the docs
+* Make sure to exit with 0 for success and non-zero otherwise
+* Make sure only machine readable content goes to stdout
+* Messaging goes to stderr
+* Provide terminal-based documentation (and maybe a man page)
+* Use colors and ASCII art (like in ls -l) when relevant (output stream == TTY -> human), also ckeck the NO_COLOR or FORCE_COLOR envs.
+* Think about `--json`, `--plain` and `--jsonl` to format the output for computers
+* Provide `-q` to avoid all text output
+* Use emojis to catch the user’s attention on critical things
+* When stderr is a TTY, add criticity in logs only in verbose mode, and write the catched error in red at the end + a solution
+* When stderr is not a TTY it's ok to output log levels, also tracebacks for unexpected or unexplainable error
+* Add progress indicators for long operations (progress bar like docker pull?)
+* Have some cache capabilities and make long operations recoverable
+* Defer cleanup operations to the next run (exit faster on first error encountered)
+* Make sure that env vars are only for user-specific config, settings that are likely to change on a run basis should be flag-only (e.g. -v, --quiet, --dry-run)
+* Don't read secrets from env. Only via credential files, pipes, AF_UNIX sockets, secret management services, or another IPC mechanism.
+* Make it a standalone executable with something like <https://github.com/pyinstaller/pyinstaller>
+* Have a command to uninstall it, print it at the end of the installation process.
+
 Low priority:
 
 * If avatar already present, don't attempt to download it and include it in the blog.
