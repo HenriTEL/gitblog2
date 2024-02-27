@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="images/favicon.svg">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.4">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
     
     
       
@@ -22,7 +22,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.50c56a3b.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.7e359304.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -500,6 +500,39 @@ Look at it yourself: this <a href="https://blog.henritel.com">live example</a> i
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span>henritel/gitblog2
 </span></code></pre></div>
 <h2 id="roadmap">Roadmap</h2>
+<p>Improve the CLI using tips from <a href="https://clig.dev">https://clig.dev</a>:</p>
+<ul>
+<li>Once installed, show what commands to run to actually start using it</li>
+<li>Comprehensive help texts</li>
+<li>Provide lots of examples</li>
+<li>Suggest what command to run next</li>
+<li>Suggest what to do when there is an error.</li>
+<li>Provide useful commands to debug nd explore, maybe <code>gitblog2 tree</code> to have a look at what the generated blog would look like, <code>gitblog config</code> to find what options are enabled/disabled. Think about ways to show metadata on articles like the updated/created at fields, maybe also list the custom templates and what articles would make use of them.</li>
+<li>Add a dry-run option</li>
+<li>Think about detecting misconfigurations, providing helpful message that point toward the right direction (e.g. line number in the faulty template).</li>
+<li>On the other hand, say when everything looks good (<code>gitblog troublesoot</code>?).</li>
+<li>Autocompletion?</li>
+<li>Not printing scary-looking stack traces, explain errors instead.</li>
+<li>Link the docs and code on the help page</li>
+<li>Link the code from the docs</li>
+<li>Make sure to exit with 0 for success and non-zero otherwise</li>
+<li>Make sure only machine readable content goes to stdout</li>
+<li>Messaging goes to stderr</li>
+<li>Provide terminal-based documentation (and maybe a man page)</li>
+<li>Use colors and ASCII art (like in ls -l) when relevant (output stream == TTY -&gt; human), also ckeck the NO_COLOR or FORCE_COLOR envs.</li>
+<li>Think about <code>--json</code>, <code>--plain</code> and <code>--jsonl</code> to format the output for computers</li>
+<li>Provide <code>-q</code> to avoid all text output</li>
+<li>Use emojis to catch the user’s attention on critical things</li>
+<li>When stderr is a TTY, add criticity in logs only in verbose mode, and write the catched error in red at the end + a solution</li>
+<li>When stderr is not a TTY it's ok to output log levels, also tracebacks for unexpected or unexplainable error</li>
+<li>Add progress indicators for long operations (progress bar like docker pull?)</li>
+<li>Have some cache capabilities and make long operations recoverable</li>
+<li>Defer cleanup operations to the next run (exit faster on first error encountered)</li>
+<li>Make sure that env vars are only for user-specific config, settings that are likely to change on a run basis should be flag-only (e.g. -v, --quiet, --dry-run)</li>
+<li>Don't read secrets from env. Only via credential files, pipes, AF_UNIX sockets, secret management services, or another IPC mechanism.</li>
+<li>Make it a standalone executable with something like <a href="https://github.com/pyinstaller/pyinstaller">https://github.com/pyinstaller/pyinstaller</a></li>
+<li>Have a command to uninstall it, print it at the end of the installation process.</li>
+</ul>
 <p>Low priority:</p>
 <ul>
 <li>If avatar already present, don't attempt to download it and include it in the blog.</li>
@@ -586,10 +619,10 @@ Look at it yourself: this <a href="https://blog.henritel.com">live example</a> i
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.c011b7c0.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.7389ff0e.min.js"></script>
+      <script src="assets/javascripts/bundle.8fd75fb4.min.js"></script>
       
     
   </body>
