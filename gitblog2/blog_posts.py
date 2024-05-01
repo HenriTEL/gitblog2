@@ -46,7 +46,7 @@ class BlogPosts:
                 datetime.min,
                 datetime.min,
                 str(latest_commit.author),
-                path.relative_to(repo_subdir).with_suffix(''),
+                path.relative_to(repo_subdir or "").with_suffix(''),
             )
         parent_commit = latest_commit
         # Traverse commit history to find posts creation dates

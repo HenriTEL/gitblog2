@@ -194,7 +194,7 @@ class GitBlog:
         # TODO fix indexes not beeing rendered when render_article not previously called
         self.blog_posts[path].title = title
         self.blog_posts[path].description = description
-        section = path.relative_to(self.repo_subdir).parts[0]
+        section = path.relative_to(self.repo_subdir or "").parts[0]
         self.section_to_paths[section].add(path)
         html_content = markdown(
             md_content,
