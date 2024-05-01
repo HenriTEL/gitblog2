@@ -31,12 +31,12 @@ def main(
     ] = "./",
     output_dir: Annotated[Path, typer.Argument()] = Path("./public"),
     loglevel: Annotated[
-        LogLevel, typer.Option("--loglevel", "-l", show_default="info")
+        LogLevel, typer.Option("--loglevel", "-l", show_default="info", envvar="BASE_URL")
     ] = LogLevel.INFO,
     force: Annotated[bool, typer.Option("--force", "-f")] = False,
     no_social: Annotated[bool, typer.Option("--no-social")] = False,
     no_fetch: Annotated[bool, typer.Option("--no-fetch")] = False,
-    base_url: Annotated[str, typer.Option()] = "",
+    base_url: Annotated[str, typer.Option(envvar="BASE_URL")] = "",
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(levelname)s: %(message)s")
     if output_dir.exists():
@@ -52,6 +52,9 @@ def main(
     print(f"Generating blog into `{output_dir}`...")
     clone_dir = clone_dir or NONE_PATH
     repo_subdir = repo_subdir or NONE_PATH
+    logging.debug(f"clone_dir `{clone_dir}`")
+    logging.debug(f"repo_subdir `{repo_subdir}`")
+    logging.debug(f"base_url `{base_url}`")
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
         git_blog.write_blog(
             output_dir,
