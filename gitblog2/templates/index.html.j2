@@ -18,7 +18,7 @@
   <main>
     {%- for blog_post in blog_posts|sort(attribute='creation_dt', reverse=True) %}
     <article>
-      <strong><a href="{{ blog_post.relative_path }}">{{ blog_post.title }}</a></strong>
+      <strong><a href="/{{ blog_post.relative_path }}">{{ blog_post.title }}</a></strong>
       <p>
       {{ blog_post.description }}
       </p>

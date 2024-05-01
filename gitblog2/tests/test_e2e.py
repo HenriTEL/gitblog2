@@ -21,6 +21,7 @@ def test_content_match(tmp_path: Path):
     (match, mismatch, errors) = filecmp.cmpfiles(
         tmp_path, expected_content_dir, files
     )
+    print((tmp_path / "index.html").read_text())
 
     assert len(match) == len(files), f"mismatch: {mismatch}, errors: {errors}"
 

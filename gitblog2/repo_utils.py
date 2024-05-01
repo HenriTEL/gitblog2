@@ -1,14 +1,15 @@
+from pathlib import Path
 from git import Tree
 
 
 def fast_diff(
-    path_to_hash: dict[str, str], target: Tree
-) -> tuple[list[str], dict[str, str]]:
-    new_path_to_hash: dict[str, str] = {}
-    changed_paths: list[str] = []
+    path_to_hash: dict[Path, str], target: Tree
+) -> tuple[list[Path], dict[Path, str]]:
+    new_path_to_hash: dict[Path, str] = {}
+    changed_paths: list[Path] = []
     for path, file_hash in path_to_hash.items():
         try:
-            blob = target[path]
+            blob = target[str(path)]
         except KeyError:
             changed_paths.append(path)
             continue

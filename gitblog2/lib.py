@@ -2,8 +2,9 @@ from base64 import b64encode
 from collections import defaultdict
 import logging
 import os
+from pathlib import Path
 import re
-import shutil
+import subprocess
 from tempfile import TemporaryDirectory
 from types import TracebackType
 from typing import Type, cast, Generator, Optional
@@ -18,9 +19,9 @@ from markdown import markdown
 import requests
 from git.repo import Repo
 from git import Commit, Tree
-from git.types import PathLike
 
 from gitblog2.blog_posts import BlogPosts
+from gitblog2.utils import NONE_PATH
 
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
@@ -36,29 +37,28 @@ class GitBlog:
     def __init__(
         self,
         source_repo: str,
-        clone_dir: str = "",
-        repo_subdir: str = "",
+        clone_path: Path = NONE_PATH,
+        repo_subdir: Path = NONE_PATH,
         ignore_dirs: tuple[str, ...] = ("draft", "media", "templates", ".github"),
         ignore_files: tuple[str, ...] = ("README.md", "LICENSE.md"),
         fetch: bool = True,
     ):
         self.source_repo = source_repo
-        self.repo_subdir = repo_subdir.strip("/")
+        self.repo_subdir = repo_subdir
         self.ignore_dirs = ignore_dirs
         self.ignore_files = ignore_files
 
         self.workdir = TemporaryDirectory()
         if _is_uri(self.source_repo):
-            self.clone_dir = clone_dir.rstrip("/") if clone_dir else self.workdir.name
+            self.clone_path = clone_path or Path(self.workdir.name)
         else:
-            self.clone_dir = source_repo.rstrip("/")
-        self.blog_path = (
-            self.clone_dir + "/" + self.repo_subdir
-            if self.repo_subdir
-            else self.clone_dir
-        ).rstrip("/")
+            self.clone_path = Path(source_repo)
+        logging.debug("Using clone_path `%s`", self.clone_path)
+        self.blog_path = self.clone_path / (self.repo_subdir or "")
+        logging.debug("Using blog_path `%s`", self.blog_path)
 
-        self.pkgdir = os.path.dirname(__file__)
+        self.pkgdir = Path(__file__).parent
+        logging.debug("pkgdir is`%s`", self.pkgdir)
         self.repo = self._init_repo(fetch)
         self.j2env = self._init_templating()
         commits = self.repo.iter_commits(self.last_commit, paths=self.repo_subdir)
@@ -66,13 +66,12 @@ class GitBlog:
             commits, self.repo_subdir, self.ignore_dirs, self.ignore_files
         )
 
-        self.section_to_paths: defaultdict[str, set[str]] = defaultdict(set)
+        self.section_to_paths: defaultdict[str, set[Path]] = defaultdict(set)
         self.old_to_new_path: dict[str, str] = {}
 
     @cached_property
     def sections(self) -> list[str]:
         _sections = list(self.gen_sections())
-        logging.debug("Built sections.")
         return _sections
 
     @property
@@ -105,7 +104,7 @@ class GitBlog:
 
     def write_blog(
         self,
-        output_dir: str,
+        output_dir: Path,
         with_social: bool = True,
         base_url: ParseResult = urlparse(""),
     ):
@@ -122,29 +121,33 @@ class GitBlog:
             self.write_syndication_feeds(output_dir, base_url=base_url)
         self.add_static_assets(output_dir)
 
-    def write_articles(self, output_dir: str, with_social: bool = True):
+    def write_articles(self, output_dir: Path, with_social: bool = True):
         template = self.j2env.get_template("article.html.j2")
         for path, content in self.gen_articles_content():
-            rel_path = self.blog_posts[str(path)].relative_path
-            full_page = self.render_article(content, str(path), template, with_social)
-            target_path = output_dir + rel_path + ".html"
-            print(target_path)
-            _write_file(full_page, target_path)
+            rel_path = self.blog_posts[path].relative_path
+            full_page = self.render_article(content, path, template, with_social)
+            target_path = (output_dir / rel_path).with_suffix(".html")
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.write_text(full_page)
+            logging.debug("Added `%s`", target_path)
 
-    def write_indexes(self, output_dir: str, with_social: bool = True):
+    def write_indexes(self, output_dir: Path, with_social: bool = True):
         for section in self.sections:
-            target_path = f"{output_dir}/{section}/index.html"
+            target_path = output_dir / section / "index.html"
             try:
                 full_page = self.render_index(section, with_social)
             except Exception as ex:
                 logging.error("Failed to render index for section %s", section)
                 raise ex
-            _write_file(full_page, target_path)
+            target_path.write_text(full_page)
+            logging.debug("Added `%s`", target_path)
 
         home_page = self.render_index(with_social=with_social)
-        _write_file(home_page, f"{output_dir}/index.html")
+        home_path = output_dir / "index.html"
+        home_path.write_text(home_page)
+        logging.debug("Added `%s`", home_path)
 
-    def write_syndication_feeds(self, output_dir: str, base_url: ParseResult):
+    def write_syndication_feeds(self, output_dir: Path, base_url: ParseResult):
         url_hash = b64encode(base_url.geturl().encode()).decode()
         feed_id = f"ni://{base_url.hostname}/base64;{url_hash}"
         last_commit_dt = self.last_commit.committed_datetime
@@ -161,7 +164,7 @@ class GitBlog:
         for _, paths in self.section_to_paths.items():
             for path in paths:
                 blog_post = self.blog_posts[path]
-                article_url = base_url.geturl() + "/" + blog_post.relative_path
+                article_url = base_url.geturl() + f"/{blog_post.relative_path}"
                 url_hash = b64encode(article_url.encode()).decode()
                 entry_id = f"ni://{base_url.hostname}/base64;{url_hash}"
 
@@ -172,14 +175,14 @@ class GitBlog:
                 feed_entry.link(href=article_url, rel="alternate")
                 feed_entry.updated(blog_post.last_update_dt)
                 feed.add_entry(feed_entry)
-        feed.atom_file(output_dir + "/atom.xml")
-        feed.rss_file(output_dir + "/rss.xml")
+        feed.atom_file(str(output_dir / "atom.xml"))
+        feed.rss_file(str(output_dir / "rss.xml"))
         logging.debug("Wrote syndication feeds.")
 
     def render_article(
         self,
         content: str,
-        path: str,
+        path: Path,
         template: Optional[jinja2.Template] = None,
         with_social: bool = True,
     ) -> str:
@@ -191,7 +194,7 @@ class GitBlog:
         # TODO fix indexes not beeing rendered when render_article not previously called
         self.blog_posts[path].title = title
         self.blog_posts[path].description = description
-        section = path.removeprefix(self.repo_subdir).lstrip("/").split("/")[0]
+        section = path.relative_to(self.repo_subdir).parts[0]
         self.section_to_paths[section].add(path)
         html_content = markdown(
             md_content,
@@ -207,7 +210,7 @@ class GitBlog:
                 social_accounts=self.social_accounts if with_social else None,
             )
         except Exception as e:
-            logging.error("Failed to render %s", path)
+            logging.error("Failed to render `%s`", path)
             raise e
         return final_html
 
@@ -218,7 +221,7 @@ class GitBlog:
     ) -> str:
         template = self.j2env.get_template("index.html.j2")
         if section == "Home":
-            section_paths = [p for ps in self.section_to_paths.values() for p in ps]
+            section_paths = {p for ps in self.section_to_paths.values() for p in ps}
         else:
             section_paths = self.section_to_paths[section]
         section_posts = [self.blog_posts[p] for p in section_paths]
@@ -235,28 +238,26 @@ class GitBlog:
             social_accounts=self.social_accounts if with_social else None,
         )
 
-    def add_static_assets(self, output_dir: str):
+    def add_static_assets(self, output_dir: Path):
         """Copy static assets from the repo into the outupt dir.
         Use files from the package if not found"""
-        media_dst = output_dir + "/media"
-        custom_media = self.blog_path + "/media"
-        if os.path.exists(custom_media):
+        media_dst = output_dir / "media"
+        custom_media = self.blog_path / "media"
+        if custom_media.exists():
             sync_dir(custom_media, media_dst)
-        default_media = self.pkgdir + "/media"
+        default_media = self.pkgdir / "media"
         sync_dir(default_media, media_dst)
 
-        css_dst = output_dir + "/style.css"
-        default_css = self.pkgdir + "/style.css"
-        custom_css = self.blog_path + "/style.css"
-        if os.path.exists(custom_css):
-            shutil.copyfile(custom_css, css_dst)
-        else:
-            shutil.copyfile(default_css, css_dst)
+        css_dst = output_dir / "style.css"
+        default_css = self.pkgdir / "style.css"
+        custom_css = self.blog_path / "style.css"
+        css_content = custom_css.read_bytes() if custom_css.is_file() else default_css.read_bytes()
+        css_dst.write_bytes(css_content)
         logging.debug("Added static assets.")
 
-    def download_avatar(self, output_dir: str) -> None:
-        avatar_dst = output_dir + "/media/avatar"
-        if os.path.exists(avatar_dst):
+    def download_avatar(self, output_dir: Path) -> None:
+        avatar_dst = output_dir / "media/avatar"
+        if avatar_dst.exists():
             logging.warning("Avatar already downloaded.")
             return
         avatar_url = ""
@@ -264,7 +265,7 @@ class GitBlog:
             avatar_url = self._github_api_get("/user")["avatar_url"]
 
         if avatar_url:
-            os.makedirs(os.path.dirname(avatar_dst), exist_ok=True)
+            avatar_dst.parent.mkdir(parents=True, exist_ok=True)
             _, response = request.urlretrieve(avatar_url, avatar_dst)
             if response.get("content-type", "").startswith("image/"):
                 print("Avatar downloaded.")
@@ -273,27 +274,27 @@ class GitBlog:
 
     def gen_articles_content(
         self, tree: Optional[Tree] = None
-    ) -> Generator[tuple[PathLike, str], None, None]:
+    ) -> Generator[tuple[Path, str], None, None]:
         """Traverse repo files an return any (path, content) tuple corresponding to non blacklisted Markdown files.
         The path parameter is recursively constructed as we traverse the tree."""
         if tree is None:
             tree = self.last_commit.tree
             if self.repo_subdir:
-                tree = cast(Tree, tree[self.repo_subdir])
+                tree = cast(Tree, tree[str(self.repo_subdir)])
         for obj in tree:
             if obj.type == "tree" and obj.name not in self.ignore_dirs:
                 yield from self.gen_articles_content(obj)
             elif obj.type == "blob" and obj.name.endswith(".md"):
                 if obj.name in self.ignore_files:
-                    logging.debug("Skipped %s", obj.path)
+                    logging.debug("Skipped `%s`", obj.path)
                     continue
-                yield obj.path, cast(bytes, obj.data_stream.read()).decode("utf-8")
+                yield Path(obj.path), cast(bytes, obj.data_stream.read()).decode("utf-8")
 
     def gen_sections(self) -> Generator[str, None, None]:
         """Yield all sections found for this blog"""
         blog_root = self.last_commit.tree
         if self.repo_subdir:
-            blog_root = cast(Tree, blog_root[self.repo_subdir])
+            blog_root = cast(Tree, blog_root[str(self.repo_subdir)])
         # Enumerate all valid toplevel dirs
         for tree in blog_root.trees:
             if tree.name not in self.ignore_dirs:
@@ -326,18 +327,20 @@ class GitBlog:
         """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
         Optionally fetch changes after that."""
 
-        cloned_already = os.path.exists(self.clone_dir + "/.git/")
+        cloned_already = (self.clone_path / ".git").exists()
         if cloned_already:
-            repo = Repo(self.clone_dir)
+            repo = Repo(self.clone_path)
         else:
             repo = Repo.clone_from(
                 self.source_repo,
-                self.clone_dir,
+                self.clone_path,
                 multi_options=["--depth 1", "--no-checkout"],
             )
-            logging.debug("Cloned repo with depth 1 into %s", self.clone_dir)
+            logging.debug("Cloned repo with depth 1 into `%s`", self.clone_path)
         if fetch:
             # TODO check shallow
+            cmd = "git rev-parse --is-shallow-repository"
+            is_shallow = subprocess.check_output(cmd, shell=True).decode().startswith("true")
             repo.remotes.origin.fetch(
                 refspec=None,
                 progress=None,
@@ -347,18 +350,18 @@ class GitBlog:
                 allow_unsafe_options=False,
                 filter="blob:none",
                 no_tags=True,
-                unshallow=True,
+                unshallow=is_shallow,
             )
         return repo
 
     def _init_templating(self) -> jinja2.Environment:
         """Copy missing templates into the template dir if necessary
         and return a Jinja2Environment"""
-        templates_dst = self.workdir.name + "/templates"
-        custom_templates = self.blog_path + "/templates"
-        if os.path.exists(custom_templates):
+        templates_dst = Path(self.workdir.name) / "templates"
+        custom_templates = self.blog_path / "templates"
+        if custom_templates.exists():
             sync_dir(custom_templates, templates_dst, symlink=True)
-        default_templates = self.pkgdir + "/templates"
+        default_templates = self.pkgdir / "templates"
         sync_dir(default_templates, templates_dst, symlink=True)
         return jinja2.Environment(loader=jinja2.FileSystemLoader(templates_dst))
 
@@ -371,27 +374,24 @@ class GitBlog:
         exception: Optional[BaseException],
         traceback: Optional[TracebackType],
     ):
-        self.workdir.cleanup()
+        # self.workdir.cleanup()
+        pass
 
 
-def sync_dir(src: str, dst: str, symlink: bool = False):
+def sync_dir(src: Path, dst: Path, symlink: bool = False):
     """Add files that are missing from src into dst, optionally using symlinks"""
-    os.makedirs(dst, exist_ok=True)
-    for file in os.listdir(src):
-        dst_file = f"{dst}/{file}"
-        if not os.path.exists(dst_file):
+    dst.mkdir(parents=True, exist_ok=True)
+    for file in src.iterdir():
+        src_file = src / file.name
+        dst_file = dst / file.name
+        if dst_file.is_dir():
+            raise FileExistsError(f"Cannot create file `{dst_file}` as it is an existing directory.")
+        if not dst_file.exists():
             if symlink:
-                os.symlink(f"{src}/{file}", dst_file)
+                dst_file.symlink_to(src_file)
             else:
-                shutil.copyfile(f"{src}/{file}", dst_file)
-            logging.debug("Added %s", dst_file)
-
-
-def _write_file(content: str, target_path: str):
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    with open(target_path, "w+", encoding="utf-8") as file_descriptor:
-        file_descriptor.write(content)
-    logging.debug("Wrote %s", target_path)
+                dst_file.write_bytes(src_file.read_bytes())
+            logging.debug("Added `%s` to `%s`", src_file, dst)
 
 
 def _is_uri(repo_link: str):

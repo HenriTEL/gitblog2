@@ -2,12 +2,15 @@
 from enum import Enum
 import logging
 import os
+from pathlib import Path
+from typing import Optional
 from urllib.parse import urlparse
 
 import typer
 from typing_extensions import Annotated
 
-from .lib import GitBlog
+from gitblog2.lib import GitBlog
+from gitblog2.utils import NONE_PATH, NonePath
 
 
 class LogLevel(str, Enum):
@@ -17,39 +20,38 @@ class LogLevel(str, Enum):
     ERROR = "error"
 
 
-def main():
-    typer.run(cli)
-
-
-def cli(
+def main(
+    clone_dir: Annotated[Optional[Path], typer.Option()] = None,
+    repo_subdir: Annotated[Optional[Path], typer.Option()] = None,
     source_repo: Annotated[
         str,
         typer.Argument(
             envvar="SOURCE_REPO",
         ),
     ] = "./",
-    output_dir: Annotated[str, typer.Argument(envvar="OUTPUT_DIR")] = "./public",
-    clone_dir: Annotated[str, typer.Option(envvar="CLONE_DIR")] = "",
-    repo_subdir: Annotated[str, typer.Option(envvar="REPO_SUBDIR")] = "",
+    output_dir: Annotated[Path, typer.Argument()] = Path("./public"),
     loglevel: Annotated[
-        LogLevel, typer.Option("--loglevel", "-l", envvar="LOG_LEVEL")
+        LogLevel, typer.Option("--loglevel", "-l", show_default="info")
     ] = LogLevel.INFO,
-    force: Annotated[bool, typer.Option("-f")] = False,
-    no_social: Annotated[bool, typer.Option(envvar="NO_SOCIAL")] = False,
-    no_fetch: Annotated[bool, typer.Option(envvar="NO_FETCH")] = False,
-    base_url: Annotated[str, typer.Option(envvar="BASE_URL")] = "",
+    force: Annotated[bool, typer.Option("--force", "-f")] = False,
+    no_social: Annotated[bool, typer.Option("--no-social")] = False,
+    no_fetch: Annotated[bool, typer.Option("--no-fetch")] = False,
+    base_url: Annotated[str, typer.Option()] = "",
 ):  # TODO add arguments descriptions
     logging.basicConfig(level=loglevel.upper(), format="%(levelname)s: %(message)s")
-    if os.path.exists(output_dir):
-        with os.scandir(output_dir) as it:
-            if any(it):
-                if not force:
-                    raise FileExistsError(
-                        f"The output directory '{output_dir}' is not empty, use --force to overwrite."
-                    )
-                logging.warning("The output directory is not empty.")
+    if output_dir.exists():
+        if not output_dir.is_dir():
+            raise FileNotFoundError(f"`{output_dir}` is not a valid directory")
+        if any(output_dir.iterdir()):
+            if not force:
+                raise FileExistsError(
+                    f"The output directory `{output_dir}` is not empty, use --force to overwrite."
+                )
+            logging.warning(f"The output directory `{output_dir}` is not empty.")
 
-    print(f"Generating blog into '{output_dir}'...")
+    print(f"Generating blog into `{output_dir}`...")
+    clone_dir = clone_dir or NONE_PATH
+    repo_subdir = repo_subdir or NONE_PATH
     with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
         git_blog.write_blog(
             output_dir,
@@ -60,4 +62,4 @@ def cli(
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

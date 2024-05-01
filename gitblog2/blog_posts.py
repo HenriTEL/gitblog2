@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
 import logging
+from pathlib import Path
 from typing import Generator, Iterator
 from git import Commit, Tree
 
 from gitblog2.repo_utils import fast_diff
+from gitblog2.utils import NONE_PATH, NonePath
 
 
 @dataclass
@@ -12,7 +14,7 @@ class BlogPost:
     creation_dt: datetime
     last_update_dt: datetime
     author: str
-    relative_path: str
+    relative_path: Path
     title: str = ""
     description: str = ""
 
@@ -25,7 +27,7 @@ class BlogPosts:
     def __init__(
         self,
         commits: Iterator[Commit],
-        repo_subdir: str = "",
+        repo_subdir: Path = NonePath(),
         ignore_dirs: tuple[str, ...] = (),
         ignore_files: tuple[str, ...] = (),
     ):
@@ -33,18 +35,18 @@ class BlogPosts:
         self.ignore_files = ignore_files
         self._init_path_to_blog_post(commits, repo_subdir)
 
-    def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: str):
-        self.path_to_blog_post: dict[str, BlogPost] = {}
-        path_to_hash: dict[str, str] = {}
+    def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: Path):
+        self.path_to_blog_post: dict[Path, BlogPost] = {}
+        path_to_hash: dict[Path, str] = {}
         latest_commit = next(commits)
 
-        for path, file_hash in self._gen_path_and_hashes(latest_commit.tree):
+        for path, file_hash in self._gen_path_and_hashes(latest_commit.tree, repo_subdir):
             path_to_hash[path] = file_hash
             self.path_to_blog_post[path] = BlogPost(
                 datetime.min,
                 datetime.min,
                 str(latest_commit.author),
-                path[:-3].removeprefix(repo_subdir),
+                path.relative_to(repo_subdir).with_suffix(''),
             )
         parent_commit = latest_commit
         # Traverse commit history to find posts creation dates
@@ -62,18 +64,22 @@ class BlogPosts:
             path_to_hash = new_path_to_hash
 
     def _gen_path_and_hashes(
-        self, tree: Tree
-    ) -> Generator[tuple[str, str], None, None]:
+        self, tree: Tree, repo_subdir: Path
+    ) -> Generator[tuple[Path, str], None, None]:
         for obj in tree:
             if obj.type == "tree" and obj.name not in self.ignore_dirs:
-                yield from self._gen_path_and_hashes(obj)
+                yield from self._gen_path_and_hashes(obj, repo_subdir)
             elif obj.type == "blob" and obj.name.endswith(".md"):
-                if obj.name in self.ignore_files:
-                    logging.debug("Skipped %s", obj.path)
+                path = Path(obj.path)
+                if repo_subdir is not NONE_PATH and not path.is_relative_to(repo_subdir):
+                    logging.debug("Skipped `%s`", path)
                     continue
-                yield str(obj.path), obj.hexsha
+                if obj.name in self.ignore_files:
+                    logging.debug("Skipped `%s`", path)
+                    continue
+                yield Path(obj.path), obj.hexsha
 
-    def __getitem__(self, path: str) -> BlogPost:
+    def __getitem__(self, path: Path) -> BlogPost:
         return self.path_to_blog_post[path]
 
     def values(self):
