@@ -56,6 +56,10 @@ docker run --rm -v $PWD/public:/public \
 
 ## Roadmap
 
+* support frontmatter
+* git comments
+* strike through not working (both ~ and ~~)
+
 Improve the CLI using tips from <https://clig.dev>:
 
 * Once installed, show what commands to run to actually start using it
