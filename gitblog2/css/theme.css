@@ -1,215 +1,4 @@
-/* Normalize css (based on github.com/necolas/normalize.css v8.0.1)
-   ========================================================================== */
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-hr {
-  box-sizing: content-box;
-  height: 0;
-  overflow: visible;
-}
-
-sub,
-sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-
-sub {
-  bottom: -0.25em;
-}
-
-sup {
-  top: -0.5em;
-}
-
-/* Normalize end
-   ========================================================================== */
-
-body {
-  margin: 0;
-  display: grid;
-  grid-template-rows: [header] min-content [main] auto [footer] min-content;
-  min-height: 100svh;
-}
-
-body>footer {
-  text-align: center;
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-nav li+li {
-  margin-left: 1rem;
-}
-
-header>:not(nav) {
-  max-width: 40rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-nav {
-  padding: 0.5rem 0 0.5rem 0;
-}
-
-nav ul,
-nav ol {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 0 .5rem;
-}
-
-body>main {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 0 .5rem;
-}
-
-header>*:not(nav) {
-  padding: 0 .5rem;
-}
-
-header img {
-  vertical-align: middle;
-}
-
-main>article:first-child {
-  margin-top: 2rem;
-}
-
-article {
-  padding-top: .5rem;
-  padding-bottom: .5rem;
-  margin-bottom: 2rem;
-}
-
-article>* {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-article>p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 1rem;
-  margin-bottom: .6rem;
-}
-
-h2 {
-  font-size: 2.6rem;
-}
-
-h3 {
-  font-size: 2rem;
-}
-
-h4 {
-  font-size: 1.44rem;
-}
-
-h5 {
-  font-size: 1.15rem;
-}
-
-h6 {
-  font-size: 0.96rem;
-}
-
-p {
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-a {
-  display: inline-block;
-}
-
-blockquote,
-q {
-  margin: 1.5em 0;
-  padding: 0.5em 1em;
-}
-
-mark {
-  padding: 0 2px 0 2px;
-}
-
-label {
-  vertical-align: middle;
-  margin-bottom: 4px;
-  display: inline-block;
-}
-
-code,
-samp,
-time {
-  padding: 2.5px 5px;
-}
-
-
-pre>code {
-  padding: 10px;
-  display: block;
-  overflow-x: auto;
-}
-
-kbd {
-  padding: 2px 4px 2px 4px;
-}
-
-
-img,
-video {
-  max-width: 100%;
-  height: auto;
-}
-
-table {
-  border-collapse: collapse;
-  margin-bottom: 10px;
-  width: 100%;
-  table-layout: fixed;
-}
-
-td,
-th {
-  padding: 6px;
-  vertical-align: top;
-}
-
-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0.5em 0.5em 0;
-  overflow: hidden;
-}
-
-summary {
-  margin: -0.5em -0.5em 0;
-  padding: 0.5em;
-}
-
-
-footer p {
-  margin: 0;
-}:root {
+:root {
 	/* Fonts based on https://systemfontstack.com/ */
 	--main-content-font: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
 	--title-font: Superclarendon, 'Bookman Old Style', 'URW Bookman', 'URW Bookman L', 'Georgia Pro', Georgia, serif;
@@ -224,6 +13,7 @@ footer p {
 	--text-muted: hwb(0deg 25% 75%);
 	--highlight: hwb(60 0% 0%);
 	--text-highlight: black;
+	--link: initial;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -233,6 +23,7 @@ footer p {
 		--text-main: hwb(0deg 80% 20%);
 		--text-muted: hwb(0deg 60% 40%);
 		--highlight: hwb(60 0% 20%);
+		--link: hwb(200, 10%, 5%);
 	}
 
 	img,
@@ -343,13 +134,11 @@ mark {
 }
 
 a {
-	color: inherit;
-	text-decoration-thickness: .15rem;
+	color: var(--link);
 }
 
 a:hover {
 	text-decoration: none;
-	color: var(--primary-color);
 }
 
 a>code,

@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-from enum import Enum
 import logging
-import os
+import tempfile
+from enum import Enum
 from pathlib import Path
-from typing import Optional
 from urllib.parse import urlparse
 
 import typer
 from typing_extensions import Annotated
 
 from gitblog2.lib import GitBlog
-from gitblog2.utils import NONE_PATH, NonePath
 
 
 class LogLevel(str, Enum):
@@ -21,14 +19,15 @@ class LogLevel(str, Enum):
 
 
 def main(
-    clone_dir: Annotated[Optional[Path], typer.Option()] = None,
-    repo_subdir: Annotated[Optional[Path], typer.Option()] = None,
     source_repo: Annotated[
         str,
         typer.Argument(
             envvar="SOURCE_REPO",
+            help="The URL of the git repository to use as source for the blog.",
         ),
     ] = "./",
+    clone_dir: Annotated[Path | None, typer.Option()] = None,
+    repo_subdir: Annotated[str, typer.Option()] = "",
     output_dir: Annotated[Path, typer.Argument()] = Path("./public"),
     loglevel: Annotated[
         LogLevel, typer.Option("--loglevel", "-l", show_default="info", envvar="BASE_URL")
@@ -49,17 +48,18 @@ def main(
                 )
             logging.warning(f"The output directory `{output_dir}` is not empty.")
 
-    print(f"Generating blog into `{output_dir}`...")
-    clone_dir = clone_dir or NONE_PATH
-    repo_subdir = repo_subdir or NONE_PATH
-    logging.debug(f"clone_dir `{clone_dir}`")
-    logging.debug(f"repo_subdir `{repo_subdir}`")
-    logging.debug(f"base_url `{base_url}`")
-    with GitBlog(source_repo, clone_dir, repo_subdir, fetch=(not no_fetch)) as git_blog:
+    with tempfile.TemporaryDirectory() as workdir:
+        if source_repo.startswith(("http", "git@")):
+            clone_dir = clone_dir or Path(workdir)
+        else:
+            clone_dir = Path(source_repo)
+        git_blog = GitBlog(source_repo)
+        git_blog.init_repo(clone_dir, no_fetch=no_fetch)
         git_blog.write_blog(
             output_dir,
-            with_social=(not no_social),
+            repo_subdir=repo_subdir,
             base_url=urlparse(base_url),
+            with_social=(not no_social),
         )
     print("Done.")
 

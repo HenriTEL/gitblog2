@@ -1,12 +1,12 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-import logging
 from pathlib import Path
 from typing import Generator, Iterator
+
 from git import Commit, Tree
 
 from gitblog2.repo_utils import fast_diff
-from gitblog2.utils import NONE_PATH, NonePath
 
 
 @dataclass
@@ -27,7 +27,7 @@ class BlogPosts:
     def __init__(
         self,
         commits: Iterator[Commit],
-        repo_subdir: Path = NonePath(),
+        repo_subdir: str = "",
         ignore_dirs: tuple[str, ...] = (),
         ignore_files: tuple[str, ...] = (),
     ):
@@ -35,7 +35,7 @@ class BlogPosts:
         self.ignore_files = ignore_files
         self._init_path_to_blog_post(commits, repo_subdir)
 
-    def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: Path):
+    def _init_path_to_blog_post(self, commits: Iterator[Commit], repo_subdir: str):
         self.path_to_blog_post: dict[Path, BlogPost] = {}
         path_to_hash: dict[Path, str] = {}
         latest_commit = next(commits)
@@ -46,10 +46,10 @@ class BlogPosts:
                 datetime.min,
                 datetime.min,
                 str(latest_commit.author),
-                path.relative_to(repo_subdir or "").with_suffix(''),
+                path.relative_to(repo_subdir).with_suffix(''),
             )
         parent_commit = latest_commit
-        # Traverse commit history to find posts creation dates
+        # Traverse commit history to find posts creation an last update dates
         for commit in commits:
             changed_paths, new_path_to_hash = fast_diff(path_to_hash, commit.tree)
             for path in changed_paths:
@@ -64,14 +64,14 @@ class BlogPosts:
             path_to_hash = new_path_to_hash
 
     def _gen_path_and_hashes(
-        self, tree: Tree, repo_subdir: Path
+        self, tree: Tree, repo_subdir: str
     ) -> Generator[tuple[Path, str], None, None]:
         for obj in tree:
             if obj.type == "tree" and obj.name not in self.ignore_dirs:
                 yield from self._gen_path_and_hashes(obj, repo_subdir)
             elif obj.type == "blob" and obj.name.endswith(".md"):
                 path = Path(obj.path)
-                if repo_subdir is not NONE_PATH and not path.is_relative_to(repo_subdir):
+                if repo_subdir and not path.is_relative_to(repo_subdir):
                     logging.debug("Skipped `%s`", path)
                     continue
                 if obj.name in self.ignore_files:

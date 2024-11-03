@@ -1,28 +1,25 @@
-from base64 import b64encode
-from collections import defaultdict
 import logging
 import os
-from pathlib import Path
 import re
 import subprocess
-from tempfile import TemporaryDirectory
+from base64 import b64encode
+from collections import defaultdict
+from functools import cached_property
+from pathlib import Path
 from types import TracebackType
-from typing import Type, cast, Generator, Optional
+from typing import Generator, Optional, cast
 from urllib import request
 from urllib.parse import ParseResult, urlparse
-from functools import cached_property
 
-from feedgen.feed import FeedGenerator
-from feedgen.entry import FeedEntry
 import jinja2
-from markdown import markdown
 import requests
-from git.repo import Repo
+from feedgen.entry import FeedEntry
+from feedgen.feed import FeedGenerator
 from git import Commit, Tree
+from git.repo import Repo
+from markdown import markdown
 
 from gitblog2.blog_posts import BlogPosts
-from gitblog2.utils import NONE_PATH
-
 
 MD_LIB_EXTENSIONS = ["extra", "toc"]
 MD_LIB_EXTENSION_CONFIGS = {"toc": {"title": " Table of contents"}}
@@ -37,34 +34,10 @@ class GitBlog:
     def __init__(
         self,
         source_repo: str,
-        clone_path: Path = NONE_PATH,
-        repo_subdir: Path = NONE_PATH,
-        ignore_dirs: tuple[str, ...] = ("draft", "media", "templates", ".github"),
-        ignore_files: tuple[str, ...] = ("README.md", "LICENSE.md"),
-        fetch: bool = True,
     ):
         self.source_repo = source_repo
-        self.repo_subdir = repo_subdir
-        self.ignore_dirs = ignore_dirs
-        self.ignore_files = ignore_files
-
-        self.workdir = TemporaryDirectory()
-        if _is_uri(self.source_repo):
-            self.clone_path = clone_path or Path(self.workdir.name)
-        else:
-            self.clone_path = Path(source_repo)
-        logging.debug("Using clone_path `%s`", self.clone_path)
-        self.blog_path = self.clone_path / (self.repo_subdir or "")
-        logging.debug("Using blog_path `%s`", self.blog_path)
-
         self.pkgdir = Path(__file__).parent
         logging.debug("pkgdir is`%s`", self.pkgdir)
-        self.repo = self._init_repo(fetch)
-        self.j2env = self._init_templating()
-        commits = self.repo.iter_commits(self.last_commit, paths=self.repo_subdir)
-        self.blog_posts = BlogPosts(
-            commits, self.repo_subdir, self.ignore_dirs, self.ignore_files
-        )
 
         self.section_to_paths: defaultdict[str, set[Path]] = defaultdict(set)
         self.old_to_new_path: dict[str, str] = {}
@@ -80,13 +53,24 @@ class GitBlog:
 
     @cached_property
     def repo_uri(self) -> ParseResult:
-        if _is_uri(self.source_repo):
-            return _parse_uri(self.source_repo)
-        with self.repo.config_reader() as config_reader:
-            uri = config_reader.get('remote "origin"', "url", fallback="")
-        if not uri:
-            logging.warning("Remote origin url not found in config.")
-        return urlparse(str(uri))
+        def make_uri(uri: str) -> ParseResult:
+            if uri.startswith("http"):
+                return urlparse(self.source_repo)
+            if uri.startswith("git@"):
+                netloc, path = self.source_repo.split(":")
+                return ParseResult(
+                    scheme="ssh", netloc=netloc, path=path, params="", query="", fragment=""
+                )
+            raise ValueError("Invalid URI")
+    
+        try:
+            return make_uri(self.source_repo)
+        except ValueError:
+            with self.repo.config_reader() as config_reader:
+                uri = config_reader.get('remote "origin"', "url", fallback="")
+                if not uri:
+                    logging.warning("Remote origin url not found in config.")
+            return make_uri(uri)
 
     @cached_property
     def social_accounts(self) -> dict[str, str]:
@@ -102,18 +86,64 @@ class GitBlog:
                 _social_accounts[account["provider"]] = account["url"]
         return _social_accounts
 
+    def init_repo(self, clone_dir: Path, no_fetch: bool = False):
+        """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
+        Optionally fetch changes after that."""
+
+        cloned_already = (clone_dir / ".git").exists()
+        if cloned_already:
+            self.repo = Repo(clone_dir)
+        else:
+            self.repo = Repo.clone_from(
+                self.source_repo,
+                clone_dir,
+                multi_options=["--depth 1", "--no-checkout"],
+            )
+            logging.debug("Cloned repo with depth 1 into %s", clone_dir)
+        if not no_fetch:
+            cmd = "git rev-parse --is-shallow-repository"
+            is_shallow = subprocess.check_output(cmd, shell=True).decode().startswith("true")
+            self.repo.remotes.origin.fetch(
+                refspec=None,
+                progress=None,
+                verbose=True,
+                kill_after_timeout=None,
+                allow_unsafe_protocols=False,
+                allow_unsafe_options=False,
+                filter="blob:none",
+                no_tags=True,
+                unshallow=is_shallow,
+            )
+
     def write_blog(
         self,
         output_dir: Path,
+        *,
+        repo_subdir: str = "",
+        ignore_dirs: tuple[str, ...] = ("draft", "media", "templates", ".github"),
+        ignore_files: tuple[str, ...] = ("README.md", "LICENSE.md"),
         with_social: bool = True,
+        # TODO user pydantic URL
         base_url: ParseResult = urlparse(""),
     ):
-        if with_social and not base_url.geturl():
-            raise ValueError(
-                "You need to provide your website base URL in order to generate social feeds."
-            )
+        # TODO remove the following attribute affecttions to make this method more modular
+        self.repo_subdir = repo_subdir
+        self.blog_path = Path(self.repo.git_dir) / self.repo_subdir
+        self.ignore_dirs = ignore_dirs
+        self.ignore_files = ignore_files
+
         if with_social:
+            if not base_url.geturl():
+                raise ValueError(
+                    "You need to provide your website base URL in order to generate social feeds."
+                )
             self.download_avatar(output_dir)
+
+        self.j2env = self._init_templating()
+        commits = self.repo.iter_commits(self.last_commit, paths=repo_subdir)
+        self.blog_posts = BlogPosts(
+            commits, repo_subdir, self.ignore_dirs, self.ignore_files
+        )
 
         self.write_articles(output_dir, with_social)
         self.write_indexes(output_dir, with_social)
@@ -194,7 +224,7 @@ class GitBlog:
         # TODO fix indexes not beeing rendered when render_article not previously called
         self.blog_posts[path].title = title
         self.blog_posts[path].description = description
-        section = path.relative_to(self.repo_subdir or "").parts[0]
+        section = path.relative_to(self.repo_subdir).parts[0]
         self.section_to_paths[section].add(path)
         html_content = markdown(
             md_content,
@@ -248,11 +278,13 @@ class GitBlog:
         default_media = self.pkgdir / "media"
         sync_dir(default_media, media_dst)
 
-        css_dst = output_dir / "style.css"
-        default_css = self.pkgdir / "style.css"
-        custom_css = self.blog_path / "style.css"
-        css_content = custom_css.read_bytes() if custom_css.is_file() else default_css.read_bytes()
-        css_dst.write_bytes(css_content)
+        (output_dir / "css").mkdir(parents=True, exist_ok=True)
+        for css in ("css/layout.css", "css/theme.css"):
+            css_dst = output_dir / css
+            default_css = self.pkgdir / css
+            custom_css = self.blog_path / css
+            css_content = custom_css.read_bytes() if custom_css.is_file() else default_css.read_bytes()
+            css_dst.write_bytes(css_content)
         logging.debug("Added static assets.")
 
     def download_avatar(self, output_dir: Path) -> None:
@@ -280,7 +312,7 @@ class GitBlog:
         if tree is None:
             tree = self.last_commit.tree
             if self.repo_subdir:
-                tree = cast(Tree, tree[str(self.repo_subdir)])
+                tree = tree[str(self.repo_subdir)]
         for obj in tree:
             if obj.type == "tree" and obj.name not in self.ignore_dirs:
                 yield from self.gen_articles_content(obj)
@@ -323,59 +355,16 @@ class GitBlog:
         response.raise_for_status()
         return response.json()
 
-    def _init_repo(self, fetch: bool = True) -> Repo:
-        """Check if there is an existing repo at self.clone_dir and clone the repo there otherwise.
-        Optionally fetch changes after that."""
-
-        cloned_already = (self.clone_path / ".git").exists()
-        if cloned_already:
-            repo = Repo(self.clone_path)
-        else:
-            repo = Repo.clone_from(
-                self.source_repo,
-                self.clone_path,
-                multi_options=["--depth 1", "--no-checkout"],
-            )
-            logging.debug("Cloned repo with depth 1 into `%s`", self.clone_path)
-        if fetch:
-            # TODO check shallow
-            cmd = "git rev-parse --is-shallow-repository"
-            is_shallow = subprocess.check_output(cmd, shell=True).decode().startswith("true")
-            repo.remotes.origin.fetch(
-                refspec=None,
-                progress=None,
-                verbose=True,
-                kill_after_timeout=None,
-                allow_unsafe_protocols=False,
-                allow_unsafe_options=False,
-                filter="blob:none",
-                no_tags=True,
-                unshallow=is_shallow,
-            )
-        return repo
-
     def _init_templating(self) -> jinja2.Environment:
         """Copy missing templates into the template dir if necessary
         and return a Jinja2Environment"""
-        templates_dst = Path(self.workdir.name) / "templates"
+        templates_dst = Path(self.repo.git_dir) / "templates"
         custom_templates = self.blog_path / "templates"
         if custom_templates.exists():
             sync_dir(custom_templates, templates_dst, symlink=True)
         default_templates = self.pkgdir / "templates"
         sync_dir(default_templates, templates_dst, symlink=True)
         return jinja2.Environment(loader=jinja2.FileSystemLoader(templates_dst))
-
-    def __enter__(self):
-        return self
-
-    def __exit__(
-        self,
-        exception_type: Optional[Type[BaseException]],
-        exception: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ):
-        # self.workdir.cleanup()
-        pass
 
 
 def sync_dir(src: Path, dst: Path, symlink: bool = False):
@@ -394,14 +383,3 @@ def sync_dir(src: Path, dst: Path, symlink: bool = False):
             logging.debug("Added `%s` to `%s`", src_file, dst)
 
 
-def _is_uri(repo_link: str):
-    return repo_link.startswith(("http", "git@"))
-
-
-def _parse_uri(repo_link: str) -> ParseResult:
-    if repo_link.startswith("http"):
-        return urlparse(repo_link)
-    netloc, path = repo_link.split(":")
-    return ParseResult(
-        scheme="ssh", netloc=netloc, path=path, params="", query="", fragment=""
-    )
