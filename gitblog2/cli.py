@@ -30,7 +30,8 @@ def main(
     repo_subdir: Annotated[str, typer.Option()] = "",
     output_dir: Annotated[Path, typer.Argument()] = Path("./public"),
     loglevel: Annotated[
-        LogLevel, typer.Option("--loglevel", "-l", show_default="info", envvar="BASE_URL")
+        LogLevel,
+        typer.Option("--loglevel", "-l", show_default="info", envvar="BASE_URL"),
     ] = LogLevel.INFO,
     force: Annotated[bool, typer.Option("--force", "-f")] = False,
     no_social: Annotated[bool, typer.Option("--no-social")] = False,

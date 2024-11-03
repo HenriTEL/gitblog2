@@ -59,10 +59,15 @@ class GitBlog:
             if uri.startswith("git@"):
                 netloc, path = self.source_repo.split(":")
                 return ParseResult(
-                    scheme="ssh", netloc=netloc, path=path, params="", query="", fragment=""
+                    scheme="ssh",
+                    netloc=netloc,
+                    path=path,
+                    params="",
+                    query="",
+                    fragment="",
                 )
             raise ValueError("Invalid URI")
-    
+
         try:
             return make_uri(self.source_repo)
         except ValueError:
@@ -102,7 +107,9 @@ class GitBlog:
             logging.debug("Cloned repo with depth 1 into %s", clone_dir)
         if not no_fetch:
             cmd = "git rev-parse --is-shallow-repository"
-            is_shallow = subprocess.check_output(cmd, shell=True).decode().startswith("true")
+            is_shallow = (
+                subprocess.check_output(cmd, shell=True).decode().startswith("true")
+            )
             self.repo.remotes.origin.fetch(
                 refspec=None,
                 progress=None,
@@ -283,7 +290,11 @@ class GitBlog:
             css_dst = output_dir / css
             default_css = self.pkgdir / css
             custom_css = self.blog_path / css
-            css_content = custom_css.read_bytes() if custom_css.is_file() else default_css.read_bytes()
+            css_content = (
+                custom_css.read_bytes()
+                if custom_css.is_file()
+                else default_css.read_bytes()
+            )
             css_dst.write_bytes(css_content)
         logging.debug("Added static assets.")
 
@@ -320,7 +331,10 @@ class GitBlog:
                 if obj.name in self.ignore_files:
                     logging.debug("Skipped `%s`", obj.path)
                     continue
-                yield Path(obj.path), cast(bytes, obj.data_stream.read()).decode("utf-8")
+                yield (
+                    Path(obj.path),
+                    cast(bytes, obj.data_stream.read()).decode("utf-8"),
+                )
 
     def gen_sections(self) -> Generator[str, None, None]:
         """Yield all sections found for this blog"""
@@ -374,12 +388,12 @@ def sync_dir(src: Path, dst: Path, symlink: bool = False):
         src_file = src / file.name
         dst_file = dst / file.name
         if dst_file.is_dir():
-            raise FileExistsError(f"Cannot create file `{dst_file}` as it is an existing directory.")
+            raise FileExistsError(
+                f"Cannot create file `{dst_file}` as it is an existing directory."
+            )
         if not dst_file.exists():
             if symlink:
                 dst_file.symlink_to(src_file)
             else:
                 dst_file.write_bytes(src_file.read_bytes())
             logging.debug("Added `%s` to `%s`", src_file, dst)
-
-

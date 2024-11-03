@@ -40,13 +40,15 @@ class BlogPosts:
         path_to_hash: dict[Path, str] = {}
         latest_commit = next(commits)
 
-        for path, file_hash in self._gen_path_and_hashes(latest_commit.tree, repo_subdir):
+        for path, file_hash in self._gen_path_and_hashes(
+            latest_commit.tree, repo_subdir
+        ):
             path_to_hash[path] = file_hash
             self.path_to_blog_post[path] = BlogPost(
                 datetime.min,
                 datetime.min,
                 str(latest_commit.author),
-                path.relative_to(repo_subdir).with_suffix(''),
+                path.relative_to(repo_subdir).with_suffix(""),
             )
         parent_commit = latest_commit
         # Traverse commit history to find posts creation an last update dates
