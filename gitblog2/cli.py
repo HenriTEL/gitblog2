@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import tempfile
-from enum import Enum
+from enum import StrEnum, auto
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -11,11 +11,11 @@ from typing_extensions import Annotated
 from gitblog2.lib import GitBlog
 
 
-class LogLevel(str, Enum):
-    DEBUG = "debug"
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
+class LogLevel(StrEnum):
+    DEBUG = auto()
+    INFO = auto()
+    WARNING = auto()
+    ERROR = auto()
 
 
 def main(
@@ -47,7 +47,7 @@ def main(
                 raise FileExistsError(
                     f"The output directory `{output_dir}` is not empty, use --force to overwrite."
                 )
-            logging.warning(f"The output directory `{output_dir}` is not empty.")
+            logging.info(f"The output directory `{output_dir}` is not empty.")
 
     with tempfile.TemporaryDirectory() as workdir:
         if source_repo.startswith(("http", "git@")):

@@ -20,15 +20,15 @@ def output_dir():
             no_social=True,
             source_repo="https://github.com/HenriTEL/gitblog2.git",
             output_dir=tmp_path,
+            loglevel=cli.LogLevel.DEBUG,
         )
         yield tmp_path
 
 
 def test_content_match(output_dir: Path):
     files = ["index.html", "tech/example.html", "tech/index.html"]
-    print(EXPECTED_OUTPUT_DIR)
     (match, mismatch, errors) = filecmp.cmpfiles(output_dir, EXPECTED_OUTPUT_DIR, files)
-    print(f"{(output_dir / 'tech/example.html').read_text()}")
+    print(f"{(output_dir / 'index.html').read_text()}")
     assert len(match) == len(files), f"mismatch: {mismatch}, errors: {errors}"
 
 

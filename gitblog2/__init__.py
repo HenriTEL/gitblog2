@@ -1,1 +1,1 @@
-from .lib import GitBlog
+from .lib import GitBlog as GitBlog

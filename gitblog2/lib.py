@@ -6,7 +6,6 @@ from base64 import b64encode
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
-from types import TracebackType
 from typing import Generator, Optional, cast
 from urllib import request
 from urllib.parse import ParseResult, urlparse
@@ -74,7 +73,7 @@ class GitBlog:
             with self.repo.config_reader() as config_reader:
                 uri = config_reader.get('remote "origin"', "url", fallback="")
                 if not uri:
-                    logging.warning("Remote origin url not found in config.")
+                    logging.info("Remote origin url not found in config.")
             return make_uri(uri)
 
     @cached_property
@@ -106,21 +105,16 @@ class GitBlog:
             )
             logging.debug("Cloned repo with depth 1 into %s", clone_dir)
         if not no_fetch:
-            cmd = "git rev-parse --is-shallow-repository"
+            cmd = f"git -C {self.repo.git_dir} rev-parse --is-shallow-repository"
             is_shallow = (
                 subprocess.check_output(cmd, shell=True).decode().startswith("true")
             )
             self.repo.remotes.origin.fetch(
-                refspec=None,
-                progress=None,
-                verbose=True,
-                kill_after_timeout=None,
-                allow_unsafe_protocols=False,
-                allow_unsafe_options=False,
                 filter="blob:none",
                 no_tags=True,
                 unshallow=is_shallow,
             )
+            logging.debug("Fetched changes.")
 
     def write_blog(
         self,
@@ -301,7 +295,7 @@ class GitBlog:
     def download_avatar(self, output_dir: Path) -> None:
         avatar_dst = output_dir / "media/avatar"
         if avatar_dst.exists():
-            logging.warning("Avatar already downloaded.")
+            logging.info("Avatar already downloaded.")
             return
         avatar_url = ""
         if self.repo_uri.hostname == "github.com":
