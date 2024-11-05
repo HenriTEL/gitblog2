@@ -41,9 +41,6 @@ class BlogPosts(dict):
         latest_commit = next(commits)
 
         for path, hash in self._gen_path_and_hashes(latest_commit.tree, repo_subdir):
-            print(latest_commit.hexsha)
-            print(latest_commit.message)
-            print(f"init {path}")
             path_to_hash[path] = hash
             self[path] = BlogPost(
                 creation_dt=latest_commit.committed_datetime,
@@ -56,10 +53,8 @@ class BlogPosts(dict):
         parent_commit = latest_commit
         # Traverse commit history to find posts creation an last update dates
         for commit in commits:
-            print(commit.hexsha)
             changed_paths = fast_diff(path_to_hash, commit.tree)
             for path, (change_type, hash) in changed_paths.items():
-                print(path, change_type, hash)
                 blog_post = self[path]
                 blog_post.last_update_dt = max(
                     blog_post.last_update_dt, parent_commit.committed_datetime
