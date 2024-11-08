@@ -95,6 +95,7 @@ Improve the CLI using tips from <https://clig.dev>:
 
 Low priority:
 
+* Check <https://github.com/h5bp/html5-boilerplate>
 * If avatar already present, don't attempt to download it and include it in the blog.
 * Add gitlab support
 * Add about page (and link to it from pp) based on user bio and README.md
