@@ -59,6 +59,7 @@ docker run --rm -v $PWD/public:/public \
 * support frontmatter
 * git comments
 * strike through not working (both ~ and ~~)
+* Gemini support (feeds included)
 
 Improve the CLI using tips from <https://clig.dev>:
 
