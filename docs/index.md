@@ -1,3 +1,5 @@
+:warning: The project has been rewritten in rust, development continues [here](https://github.com/HenriTEL/gitblog) :warning:
+
 # ![Gitblog2 Logo](https://blog.henritel.com/media/favicon.svg "title") Gitblog2
 
 > Git + Markdown = Blog
