@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import typer
-from typing_extensions import Annotated
+from typing import Annotated
 
 from gitblog2.lib import GitBlog
 
