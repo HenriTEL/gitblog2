@@ -322,7 +322,7 @@ class GitBlog:
             if obj.type == "tree" and obj.name not in self.ignore_dirs:
                 yield from self.gen_articles_content(obj)
             elif obj.type == "blob" and obj.name.endswith(".md"):
-                if obj.name in self.ignore_files:
+                if obj.name in self.ignore_files or ".draft" in obj.name:
                     logging.debug("Skipped `%s`", obj.path)
                     continue
                 yield (

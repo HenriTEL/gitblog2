@@ -90,7 +90,7 @@ class BlogPosts(dict):
                 if repo_subdir and not path.is_relative_to(repo_subdir):
                     logging.debug("Skipped `%s`", path)
                     continue
-                if obj.name in self.ignore_files:
+                if obj.name in self.ignore_files or ".draft" in obj.name:
                     logging.debug("Skipped `%s`", path)
                     continue
                 yield Path(obj.path), obj.hexsha
